@@ -67,8 +67,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// App Router handles multipart/form-data natively - no config needed

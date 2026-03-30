@@ -8,6 +8,7 @@ const navigation = [
   { name: 'Sport', href: '/vesti?kategorija=sport' },
   { name: 'Kultura', href: '/vesti?kategorija=kultura' },
   { name: 'Ekonomija', href: '/vesti?kategorija=ekonomija' },
+  { name: 'Marketplace', href: '/marketplace' },
   { name: 'Oglasi', href: '/oglasi' },
   { name: 'O Gradu', href: '/o-gradu' },
   { name: 'Kontakt', href: '/kontakt' },
@@ -97,6 +98,13 @@ export default function Header() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Language Switcher */}
+              <div className="flex items-center gap-1 mr-2 text-xs">
+                <span className="text-white font-medium">SR</span>
+                <span className="text-text-light">|</span>
+                <span className="text-text-light cursor-not-allowed" title="Coming soon">EN</span>
+              </div>
+
               {socialLinks.map((social) => (
                 <a
                   key={social.name}

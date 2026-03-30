@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createDirectus, rest, readItems, readItem } from '@directus/sdk';
+import { createDirectus, rest, readItems, readItem, createItem, aggregate } from '@directus/sdk';
 
 export interface Category {
   id: number;
@@ -63,6 +63,97 @@ export interface Listing {
   expires_at: string | null;
 }
 
+// ===== MARKETPLACE TYPES =====
+
+export type VendorCategory = 'farma' | 'zanatstvo' | 'usluge' | 'trgovina' | 'turizam' | 'ostalo';
+export type ProductCategory = 'hrana' | 'pice' | 'meso' | 'voce_povrce' | 'mlecni' | 'med' | 'preradjevine' | 'zanatski' | 'ostalo';
+export type ServiceCategory = 'popravke' | 'gradjevina' | 'lepota' | 'zdravlje' | 'edukacija' | 'prevoz' | 'ugostitelstvo' | 'ostalo';
+
+export interface Vendor {
+  id: string;
+  date_created: string | null;
+  status: 'published' | 'draft' | 'pending';
+  name: string;
+  slug: string;
+  description: string | null;
+  logo: string | null;
+  cover_image: string | null;
+  category: VendorCategory | null;
+  location: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  facebook: string | null;
+  instagram: string | null;
+  working_hours: string | null;
+  featured: boolean;
+  products?: Product[];
+  services?: Service[];
+}
+
+export interface Product {
+  id: string;
+  date_created: string | null;
+  status: 'published' | 'draft';
+  vendor_id: string | Vendor | null;
+  title: string;
+  slug: string;
+  description: string | null;
+  price: number | null;
+  price_unit: string | null;
+  images: Array<{ directus_files_id: string }>;
+  category: ProductCategory | null;
+  available: boolean;
+  contact_phone: string | null;
+  contact_email: string | null;
+  featured: boolean;
+}
+
+export interface Service {
+  id: string;
+  date_created: string | null;
+  status: 'published' | 'draft';
+  vendor_id: string | Vendor | null;
+  title: string;
+  slug: string;
+  description: string | null;
+  price_from: number | null;
+  price_label: string | null;
+  images: Array<{ directus_files_id: string }>;
+  category: ServiceCategory | null;
+  duration_minutes: number | null;
+  booking_enabled: boolean;
+  available_days: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+}
+
+export interface Booking {
+  id: string;
+  date_created: string | null;
+  status: 'pending' | 'confirmed' | 'cancelled';
+  service_id: string | Service | null;
+  vendor_id: string | Vendor | null;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string | null;
+  requested_date: string;
+  requested_time: string | null;
+  message: string | null;
+  notes: string | null;
+}
+
+export interface BookingInput {
+  service_id: string;
+  vendor_id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  requested_date: string;
+  requested_time?: string;
+  message?: string;
+}
+
 interface Schema {
   categories: Category[];
   tags: Tag[];
@@ -70,6 +161,10 @@ interface Schema {
   pages: Page[];
   listings_categories: ListingCategory[];
   listings: Listing[];
+  vendors: Vendor[];
+  products: Product[];
+  services: Service[];
+  bookings: Booking[];
 }
 
 const directusUrl = process.env.DIRECTUS_URL || 'http://localhost:8055';
@@ -217,3 +312,241 @@ export function formatDate(dateString: string | null): string {
 
   return `${day}. ${month} ${year}.`;
 }
+
+// ===== MARKETPLACE FUNCTIONS =====
+
+export async function getVendors(options?: {
+  category?: VendorCategory;
+  featured?: boolean;
+  limit?: number;
+  page?: number;
+}) {
+  const { category, featured, limit = 12, page = 1 } = options || {};
+
+  const filter: Record<string, unknown> = { status: { _eq: 'published' } };
+
+  if (category) {
+    filter.category = { _eq: category };
+  }
+
+  if (featured !== undefined) {
+    filter.featured = { _eq: featured };
+  }
+
+  const vendors = await directus.request(
+    readItems('vendors', {
+      fields: ['*'],
+      filter,
+      sort: ['-featured', '-date_created'],
+      limit,
+      page,
+    })
+  );
+
+  return vendors as Vendor[];
+}
+
+export async function getVendorBySlug(slug: string) {
+  const vendors = await directus.request(
+    readItems('vendors', {
+      fields: ['*'],
+      filter: { slug: { _eq: slug }, status: { _eq: 'published' } },
+      limit: 1,
+    })
+  );
+
+  return (vendors[0] as Vendor) || null;
+}
+
+export async function getProducts(options?: {
+  vendorId?: string;
+  category?: ProductCategory;
+  featured?: boolean;
+  limit?: number;
+  page?: number;
+}) {
+  const { vendorId, category, featured, limit = 12, page = 1 } = options || {};
+
+  const filter: Record<string, unknown> = {
+    status: { _eq: 'published' },
+    available: { _eq: true },
+  };
+
+  if (vendorId) {
+    filter.vendor_id = { _eq: vendorId };
+  }
+
+  if (category) {
+    filter.category = { _eq: category };
+  }
+
+  if (featured !== undefined) {
+    filter.featured = { _eq: featured };
+  }
+
+  const products = await directus.request(
+    readItems('products', {
+      fields: [
+        '*',
+        { vendor_id: ['id', 'name', 'slug', 'logo', 'location'] },
+        { images: ['directus_files_id'] },
+      ],
+      filter,
+      sort: ['-featured', '-date_created'],
+      limit,
+      page,
+    })
+  );
+
+  return products as Product[];
+}
+
+export async function getProductBySlug(slug: string) {
+  const products = await directus.request(
+    readItems('products', {
+      fields: [
+        '*',
+        { vendor_id: ['id', 'name', 'slug', 'logo', 'location', 'phone', 'email'] },
+        { images: ['directus_files_id'] },
+      ],
+      filter: { slug: { _eq: slug }, status: { _eq: 'published' } },
+      limit: 1,
+    })
+  );
+
+  return (products[0] as Product) || null;
+}
+
+export async function getServices(options?: {
+  vendorId?: string;
+  category?: ServiceCategory;
+  bookingEnabled?: boolean;
+  limit?: number;
+  page?: number;
+}) {
+  const { vendorId, category, bookingEnabled, limit = 12, page = 1 } = options || {};
+
+  const filter: Record<string, unknown> = { status: { _eq: 'published' } };
+
+  if (vendorId) {
+    filter.vendor_id = { _eq: vendorId };
+  }
+
+  if (category) {
+    filter.category = { _eq: category };
+  }
+
+  if (bookingEnabled !== undefined) {
+    filter.booking_enabled = { _eq: bookingEnabled };
+  }
+
+  const services = await directus.request(
+    readItems('services', {
+      fields: [
+        '*',
+        { vendor_id: ['id', 'name', 'slug', 'logo', 'location'] },
+        { images: ['directus_files_id'] },
+      ],
+      filter,
+      sort: ['-date_created'],
+      limit,
+      page,
+    })
+  );
+
+  return services as Service[];
+}
+
+export async function getServiceBySlug(slug: string) {
+  const services = await directus.request(
+    readItems('services', {
+      fields: [
+        '*',
+        { vendor_id: ['id', 'name', 'slug', 'logo', 'location', 'phone', 'email', 'working_hours'] },
+        { images: ['directus_files_id'] },
+      ],
+      filter: { slug: { _eq: slug }, status: { _eq: 'published' } },
+      limit: 1,
+    })
+  );
+
+  return (services[0] as Service) || null;
+}
+
+export async function createBooking(data: BookingInput) {
+  const booking = await directus.request(
+    createItem('bookings', {
+      ...data,
+      status: 'pending',
+    })
+  );
+
+  return booking as Booking;
+}
+
+export async function getMarketplaceStats() {
+  try {
+    const [vendorsResult, productsResult, servicesResult] = await Promise.all([
+      directus.request(
+        aggregate('vendors', {
+          aggregate: { count: '*' },
+          query: { filter: { status: { _eq: 'published' } } },
+        })
+      ),
+      directus.request(
+        aggregate('products', {
+          aggregate: { count: '*' },
+          query: { filter: { status: { _eq: 'published' } } },
+        })
+      ),
+      directus.request(
+        aggregate('services', {
+          aggregate: { count: '*' },
+          query: { filter: { status: { _eq: 'published' } } },
+        })
+      ),
+    ]);
+
+    return {
+      vendors: Number(vendorsResult[0]?.count ?? 0),
+      products: Number(productsResult[0]?.count ?? 0),
+      services: Number(servicesResult[0]?.count ?? 0),
+    };
+  } catch (error) {
+    console.error('Error fetching marketplace stats:', error);
+    return { vendors: 0, products: 0, services: 0 };
+  }
+}
+
+// Category labels for display
+export const vendorCategoryLabels: Record<VendorCategory, string> = {
+  farma: 'Farma',
+  zanatstvo: 'Zanatstvo',
+  usluge: 'Usluge',
+  trgovina: 'Trgovina',
+  turizam: 'Turizam',
+  ostalo: 'Ostalo',
+};
+
+export const productCategoryLabels: Record<ProductCategory, string> = {
+  hrana: 'Hrana',
+  pice: 'Piće',
+  meso: 'Meso',
+  voce_povrce: 'Voće i povrće',
+  mlecni: 'Mlečni proizvodi',
+  med: 'Med',
+  preradjevine: 'Prerađevine',
+  zanatski: 'Zanatski proizvodi',
+  ostalo: 'Ostalo',
+};
+
+export const serviceCategoryLabels: Record<ServiceCategory, string> = {
+  popravke: 'Popravke',
+  gradjevina: 'Građevina',
+  lepota: 'Lepota',
+  zdravlje: 'Zdravlje',
+  edukacija: 'Edukacija',
+  prevoz: 'Prevoz',
+  ugostitelstvo: 'Ugostiteljstvo',
+  ostalo: 'Ostalo',
+};

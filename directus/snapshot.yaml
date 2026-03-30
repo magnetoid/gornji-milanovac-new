@@ -107,6 +107,81 @@ collections:
     schema:
       name: listings_files
 
+  # ===== MARKETPLACE COLLECTIONS =====
+
+  - collection: vendors
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collection: vendors
+      display_template: "{{name}}"
+      hidden: false
+      icon: storefront
+      note: Prodavci na marketplace-u
+      singleton: false
+    schema:
+      name: vendors
+
+  - collection: products
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collection: products
+      display_template: "{{title}}"
+      hidden: false
+      icon: inventory_2
+      note: Proizvodi za prodaju
+      singleton: false
+    schema:
+      name: products
+
+  - collection: products_files
+    meta:
+      collection: products_files
+      hidden: true
+      icon: import_export
+    schema:
+      name: products_files
+
+  - collection: services
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collection: services
+      display_template: "{{title}}"
+      hidden: false
+      icon: home_repair_service
+      note: Usluge sa rezervacijama
+      singleton: false
+    schema:
+      name: services
+
+  - collection: services_files
+    meta:
+      collection: services_files
+      hidden: true
+      icon: import_export
+    schema:
+      name: services_files
+
+  - collection: bookings
+    meta:
+      accountability: all
+      collection: bookings
+      display_template: "{{customer_name}} - {{requested_date}}"
+      hidden: false
+      icon: calendar_month
+      note: Rezervacije usluga
+      singleton: false
+    schema:
+      name: bookings
+
 fields:
   # Categories
   - collection: categories
@@ -613,6 +688,741 @@ fields:
     type: uuid
     schema: {}
 
+  # ===== MARKETPLACE FIELDS =====
+
+  # Vendors
+  - collection: vendors
+    field: id
+    type: uuid
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+
+  - collection: vendors
+    field: date_created
+    type: timestamp
+    meta:
+      interface: datetime
+      readonly: true
+      special:
+        - date-created
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Objavljen
+            value: published
+          - text: Nacrt
+            value: draft
+          - text: Na čekanju
+            value: pending
+      default_value: pending
+      width: half
+    schema:
+      is_nullable: false
+      default_value: pending
+
+  - collection: vendors
+    field: name
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+
+  - collection: vendors
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: vendors
+    field: description
+    type: text
+    meta:
+      interface: input-rich-text-html
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: logo
+    type: uuid
+    meta:
+      interface: file-image
+      special:
+        - file
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: cover_image
+    type: uuid
+    meta:
+      interface: file-image
+      special:
+        - file
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: category
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Farma
+            value: farma
+          - text: Zanatstvo
+            value: zanatstvo
+          - text: Usluge
+            value: usluge
+          - text: Trgovina
+            value: trgovina
+          - text: Turizam
+            value: turizam
+          - text: Ostalo
+            value: ostalo
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: location
+    type: string
+    meta:
+      interface: input
+      width: half
+      note: npr. Gornji Milanovac, Rudnik, Banja
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: phone
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: email
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: website
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: facebook
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: instagram
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: working_hours
+    type: text
+    meta:
+      interface: input-multiline
+      note: npr. Pon-Pet 8-16h
+    schema:
+      is_nullable: true
+
+  - collection: vendors
+    field: featured
+    type: boolean
+    meta:
+      interface: boolean
+      special:
+        - cast-boolean
+      width: half
+    schema:
+      is_nullable: true
+      default_value: false
+
+  # Products
+  - collection: products
+    field: id
+    type: uuid
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+
+  - collection: products
+    field: date_created
+    type: timestamp
+    meta:
+      interface: datetime
+      readonly: true
+      special:
+        - date-created
+    schema:
+      is_nullable: true
+
+  - collection: products
+    field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Objavljen
+            value: published
+          - text: Nacrt
+            value: draft
+      default_value: draft
+      width: half
+    schema:
+      is_nullable: false
+      default_value: draft
+
+  - collection: products
+    field: vendor_id
+    type: uuid
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: products
+    field: title
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+
+  - collection: products
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: products
+    field: description
+    type: text
+    meta:
+      interface: input-rich-text-html
+    schema:
+      is_nullable: true
+
+  - collection: products
+    field: price
+    type: decimal
+    meta:
+      interface: input
+      width: half
+      note: Ostavite prazno za "Po dogovoru"
+    schema:
+      is_nullable: true
+      numeric_precision: 10
+      numeric_scale: 2
+
+  - collection: products
+    field: price_unit
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Komad
+            value: kom
+          - text: Kilogram
+            value: kg
+          - text: Litar
+            value: l
+          - text: Usluga
+            value: usluga
+        allowOther: true
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: products
+    field: images
+    type: alias
+    meta:
+      interface: files
+      special:
+        - files
+    schema: null
+
+  - collection: products
+    field: category
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Hrana
+            value: hrana
+          - text: Piće
+            value: pice
+          - text: Meso
+            value: meso
+          - text: Voće i povrće
+            value: voce_povrce
+          - text: Mlečni proizvodi
+            value: mlecni
+          - text: Med
+            value: med
+          - text: Prerađevine
+            value: preradjevine
+          - text: Zanatski proizvodi
+            value: zanatski
+          - text: Ostalo
+            value: ostalo
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: products
+    field: available
+    type: boolean
+    meta:
+      interface: boolean
+      special:
+        - cast-boolean
+      width: half
+    schema:
+      is_nullable: true
+      default_value: true
+
+  - collection: products
+    field: contact_phone
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: products
+    field: contact_email
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: products
+    field: featured
+    type: boolean
+    meta:
+      interface: boolean
+      special:
+        - cast-boolean
+      width: half
+    schema:
+      is_nullable: true
+      default_value: false
+
+  # Products_Files junction
+  - collection: products_files
+    field: id
+    type: integer
+    meta:
+      hidden: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: products_files
+    field: products_id
+    type: uuid
+    schema: {}
+
+  - collection: products_files
+    field: directus_files_id
+    type: uuid
+    schema: {}
+
+  # Services
+  - collection: services
+    field: id
+    type: uuid
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+
+  - collection: services
+    field: date_created
+    type: timestamp
+    meta:
+      interface: datetime
+      readonly: true
+      special:
+        - date-created
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Objavljen
+            value: published
+          - text: Nacrt
+            value: draft
+      default_value: draft
+      width: half
+    schema:
+      is_nullable: false
+      default_value: draft
+
+  - collection: services
+    field: vendor_id
+    type: uuid
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: title
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+
+  - collection: services
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: services
+    field: description
+    type: text
+    meta:
+      interface: input-rich-text-html
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: price_from
+    type: decimal
+    meta:
+      interface: input
+      width: half
+      note: Početna cena
+    schema:
+      is_nullable: true
+      numeric_precision: 10
+      numeric_scale: 2
+
+  - collection: services
+    field: price_label
+    type: string
+    meta:
+      interface: input
+      width: half
+      note: npr. "od 500 RSD", "po dogovoru"
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: images
+    type: alias
+    meta:
+      interface: files
+      special:
+        - files
+    schema: null
+
+  - collection: services
+    field: category
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Popravke
+            value: popravke
+          - text: Građevina
+            value: gradjevina
+          - text: Lepota
+            value: lepota
+          - text: Zdravlje
+            value: zdravlje
+          - text: Edukacija
+            value: edukacija
+          - text: Prevoz
+            value: prevoz
+          - text: Ugostiteljstvo
+            value: ugostitelstvo
+          - text: Ostalo
+            value: ostalo
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: duration_minutes
+    type: integer
+    meta:
+      interface: input
+      width: half
+      note: Trajanje u minutima
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: booking_enabled
+    type: boolean
+    meta:
+      interface: boolean
+      special:
+        - cast-boolean
+      width: half
+    schema:
+      is_nullable: true
+      default_value: true
+
+  - collection: services
+    field: available_days
+    type: text
+    meta:
+      interface: input-multiline
+      note: JSON niz dana npr. ["mon","tue","wed","thu","fri"]
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: contact_phone
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: services
+    field: contact_email
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  # Services_Files junction
+  - collection: services_files
+    field: id
+    type: integer
+    meta:
+      hidden: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: services_files
+    field: services_id
+    type: uuid
+    schema: {}
+
+  - collection: services_files
+    field: directus_files_id
+    type: uuid
+    schema: {}
+
+  # Bookings
+  - collection: bookings
+    field: id
+    type: uuid
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+
+  - collection: bookings
+    field: date_created
+    type: timestamp
+    meta:
+      interface: datetime
+      readonly: true
+      special:
+        - date-created
+    schema:
+      is_nullable: true
+
+  - collection: bookings
+    field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Na čekanju
+            value: pending
+          - text: Potvrđeno
+            value: confirmed
+          - text: Otkazano
+            value: cancelled
+      default_value: pending
+      width: half
+    schema:
+      is_nullable: false
+      default_value: pending
+
+  - collection: bookings
+    field: service_id
+    type: uuid
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: bookings
+    field: vendor_id
+    type: uuid
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: bookings
+    field: customer_name
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+
+  - collection: bookings
+    field: customer_email
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+
+  - collection: bookings
+    field: customer_phone
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: bookings
+    field: requested_date
+    type: date
+    meta:
+      interface: datetime
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+
+  - collection: bookings
+    field: requested_time
+    type: string
+    meta:
+      interface: input
+      width: half
+      note: npr. "09:00", "14:30"
+    schema:
+      is_nullable: true
+
+  - collection: bookings
+    field: message
+    type: text
+    meta:
+      interface: input-multiline
+    schema:
+      is_nullable: true
+
+  - collection: bookings
+    field: notes
+    type: text
+    meta:
+      interface: input-multiline
+      note: Beleške prodavca
+    schema:
+      is_nullable: true
+
 relations:
   - collection: categories
     field: parent
@@ -666,3 +1476,67 @@ relations:
     related_collection: directus_files
     meta:
       junction_field: listings_id
+
+  # ===== MARKETPLACE RELATIONS =====
+
+  # Vendors
+  - collection: vendors
+    field: logo
+    related_collection: directus_files
+
+  - collection: vendors
+    field: cover_image
+    related_collection: directus_files
+
+  # Products
+  - collection: products
+    field: vendor_id
+    related_collection: vendors
+    meta:
+      one_field: products
+
+  - collection: products_files
+    field: products_id
+    related_collection: products
+    meta:
+      one_field: images
+      junction_field: directus_files_id
+
+  - collection: products_files
+    field: directus_files_id
+    related_collection: directus_files
+    meta:
+      junction_field: products_id
+
+  # Services
+  - collection: services
+    field: vendor_id
+    related_collection: vendors
+    meta:
+      one_field: services
+
+  - collection: services_files
+    field: services_id
+    related_collection: services
+    meta:
+      one_field: images
+      junction_field: directus_files_id
+
+  - collection: services_files
+    field: directus_files_id
+    related_collection: directus_files
+    meta:
+      junction_field: services_id
+
+  # Bookings
+  - collection: bookings
+    field: service_id
+    related_collection: services
+    meta:
+      one_field: bookings
+
+  - collection: bookings
+    field: vendor_id
+    related_collection: vendors
+    meta:
+      one_field: bookings

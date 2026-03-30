@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Home",
+    "news": "News",
+    "sport": "Sport",
+    "culture": "Culture",
+    "economy": "Economy",
+    "listings": "Listings",
+    "marketplace": "Marketplace",
+    "about": "About City",
+    "contact": "Contact"
+  },
+  "common": {
+    "readMore": "Read more",
+    "seeAll": "See all",
+    "backToHome": "Back to home",
+    "loading": "Loading...",
+    "noResults": "No results",
+    "search": "Search",
+    "menu": "Menu",
+    "weather": "Weather"
+  },
+  "marketplace": {
+    "title": "Local Marketplace",
+    "subtitle": "Buy local · Support local producers",
+    "vendors": "Vendors",
+    "products": "Products",
+    "services": "Services",
+    "book": "Book",
+    "contact": "Contact",
+    "priceOnRequest": "Price on request",
+    "registerVendor": "Register vendor",
+    "featured": "Featured",
+    "notAvailable": "Not available",
+    "categories": "Categories",
+    "allVendors": "All vendors",
+    "allProducts": "All products",
+    "allServices": "All services",
+    "latestProducts": "Latest Products",
+    "servicesWithBooking": "Services with Booking",
+    "featuredVendors": "Featured Vendors",
+    "registerBusiness": "Register your business",
+    "browseCategories": "Browse categories",
+    "localBusiness": "Have a local business?",
+    "localBusinessDesc": "Register your business on our marketplace for free and reach more customers from Gornji Milanovac and surrounding areas.",
+    "view": "View"
+  },
+  "booking": {
+    "title": "Book appointment",
+    "name": "Full name",
+    "email": "Email address",
+    "phone": "Phone",
+    "date": "Preferred date",
+    "time": "Preferred time",
+    "message": "Message",
+    "submit": "Send request",
+    "success": "Request sent! The vendor will contact you.",
+    "error": "Error. Please try again."
+  },
+  "categories": {
+    "farma": "Farms & Homesteads",
+    "zanatstvo": "Crafts",
+    "usluge": "Services",
+    "trgovina": "Retail",
+    "turizam": "Tourism & Hospitality",
+    "lepota": "Beauty & Health",
+    "edukacija": "Education",
+    "popravke": "Repairs"
+  },
+  "footer": {
+    "about": "About",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact",
+    "copyright": "All rights reserved"
+  }
+}

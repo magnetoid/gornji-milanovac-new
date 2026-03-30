@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Početna",
+    "news": "Vesti",
+    "sport": "Sport",
+    "culture": "Kultura",
+    "economy": "Ekonomija",
+    "listings": "Oglasi",
+    "marketplace": "Marketplace",
+    "about": "O Gradu",
+    "contact": "Kontakt"
+  },
+  "common": {
+    "readMore": "Čitaj više",
+    "seeAll": "Vidi sve",
+    "backToHome": "Na početnu",
+    "loading": "Učitavanje...",
+    "noResults": "Nema rezultata",
+    "search": "Pretraga",
+    "menu": "Meni",
+    "weather": "Vreme"
+  },
+  "marketplace": {
+    "title": "Lokalni Marketplace",
+    "subtitle": "Kupuj lokalno · Podrži lokalne proizvođače",
+    "vendors": "Prodavci",
+    "products": "Proizvodi",
+    "services": "Usluge",
+    "book": "Zakaži",
+    "contact": "Kontaktiraj",
+    "priceOnRequest": "Po dogovoru",
+    "registerVendor": "Registruj prodavca",
+    "featured": "Istaknuto",
+    "notAvailable": "Nije dostupno",
+    "categories": "Kategorije",
+    "allVendors": "Svi prodavci",
+    "allProducts": "Svi proizvodi",
+    "allServices": "Sve usluge",
+    "latestProducts": "Najnoviji Proizvodi",
+    "servicesWithBooking": "Usluge sa Rezervacijom",
+    "featuredVendors": "Istaknuti Prodavci",
+    "registerBusiness": "Registruj svoj biznis",
+    "browseCategories": "Pretraži kategorije",
+    "localBusiness": "Imaš lokalni biznis?",
+    "localBusinessDesc": "Registruj svoj biznis na našem marketplace-u potpuno besplatno i dosegni više kupaca iz Gornjeg Milanovca i okoline.",
+    "view": "Pogledaj"
+  },
+  "booking": {
+    "title": "Zakaži termin",
+    "name": "Ime i prezime",
+    "email": "Email adresa",
+    "phone": "Telefon",
+    "date": "Željeni datum",
+    "time": "Željeno vreme",
+    "message": "Napomena",
+    "submit": "Pošalji zahtev",
+    "success": "Zahtev je poslat! Prodavac će vas kontaktirati.",
+    "error": "Greška. Pokušajte ponovo."
+  },
+  "categories": {
+    "farma": "Farme i Gazdinstava",
+    "zanatstvo": "Zanatstvo",
+    "usluge": "Usluge",
+    "trgovina": "Trgovina",
+    "turizam": "Turizam i Ugostitelstvo",
+    "lepota": "Lepota i Zdravlje",
+    "edukacija": "Edukacija",
+    "popravke": "Popravke"
+  },
+  "footer": {
+    "about": "O portalu",
+    "privacy": "Politika privatnosti",
+    "terms": "Uslovi korišćenja",
+    "contact": "Kontakt",
+    "copyright": "Sva prava zadržana"
+  }
+}

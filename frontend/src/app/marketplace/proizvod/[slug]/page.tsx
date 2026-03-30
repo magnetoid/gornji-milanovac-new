@@ -8,7 +8,8 @@ import {
   getAssetUrl,
   productCategoryLabels,
   Vendor,
-} from '@/lib/directus';
+  ProductCategory,
+} from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 import ContactVendorForm from '@/components/ContactVendorForm';
 
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Proizvod nije pronađen' };
   }
 
-  const firstImage = product.images?.[0]?.directus_files_id;
+  const firstImage = product.images?.[0];
 
   return {
     title: `${product.title} - Marketplace Gornji Milanovac`,
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: product.title,
       description: product.description?.replace(/<[^>]*>/g, '').slice(0, 160) || undefined,
-      images: firstImage ? [getAssetUrl(firstImage, { width: 1200, height: 630 }) || ''] : [],
+      images: firstImage ? [getAssetUrl(firstImage) || ''] : [],
     },
   };
 }
@@ -59,17 +60,17 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
-  const vendor = product.vendor_id as Vendor | null;
-  const categoryLabel = product.category ? productCategoryLabels[product.category] : null;
+  const vendor = product.vendor as Partial<Vendor> | undefined;
+  const categoryLabel = product.category ? productCategoryLabels[product.category as ProductCategory] : null;
 
   // Get related products
   const relatedProducts = await getProducts({
-    category: product.category || undefined,
+    category: product.category as ProductCategory || undefined,
     limit: 4,
   }).then((products) => products.filter((p) => p.id !== product.id).slice(0, 3));
 
-  const mainImage = product.images?.[0]?.directus_files_id;
-  const allImages = product.images?.map((img) => img.directus_files_id) || [];
+  const mainImage = product.images?.[0];
+  const allImages = product.images || [];
 
   return (
     <div className="container py-8 md:py-12">
@@ -111,7 +112,7 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="relative aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden mb-4">
             {mainImage ? (
               <Image
-                src={getAssetUrl(mainImage, { width: 1000, height: 750, quality: 85 }) || ''}
+                src={getAssetUrl(mainImage) || ''}
                 alt={product.title}
                 fill
                 className="object-cover"
@@ -145,13 +146,13 @@ export default async function ProductPage({ params }: PageProps) {
           {/* Thumbnails */}
           {allImages.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-2">
-              {allImages.map((imageId, index) => (
+              {allImages.map((imageUrl, index) => (
                 <div
-                  key={imageId}
+                  key={index}
                   className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 border-border"
                 >
                   <Image
-                    src={getAssetUrl(imageId, { width: 160, height: 160 }) || ''}
+                    src={getAssetUrl(imageUrl) || ''}
                     alt={`${product.title} - slika ${index + 1}`}
                     fill
                     className="object-cover"
@@ -185,22 +186,22 @@ export default async function ProductPage({ params }: PageProps) {
             </p>
 
             {/* Vendor Info */}
-            {vendor && typeof vendor === 'object' && (
+            {vendor && (
               <Link
                 href={`/marketplace/vendor/${vendor.slug}`}
                 className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors mb-6"
               >
-                {vendor.logo ? (
+                {vendor.logo_url ? (
                   <Image
-                    src={getAssetUrl(vendor.logo, { width: 64, height: 64 }) || ''}
-                    alt={vendor.name}
+                    src={getAssetUrl(vendor.logo_url) || ''}
+                    alt={vendor.name || ''}
                     width={40}
                     height={40}
                     className="rounded-lg object-cover"
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-lg font-bold text-primary">{vendor.name.charAt(0)}</span>
+                    <span className="text-lg font-bold text-primary">{vendor.name?.charAt(0)}</span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -217,9 +218,9 @@ export default async function ProductPage({ params }: PageProps) {
 
             {/* Contact Form */}
             <ContactVendorForm
-              vendorEmail={product.contact_email || (vendor && typeof vendor === 'object' ? vendor.email : null)}
-              vendorPhone={product.contact_phone || (vendor && typeof vendor === 'object' ? vendor.phone : null)}
-              vendorName={vendor && typeof vendor === 'object' ? vendor.name : 'Prodavac'}
+              vendorEmail={product.contact_email || vendor?.email || null}
+              vendorPhone={product.contact_phone || vendor?.phone || null}
+              vendorName={vendor?.name || 'Prodavac'}
               productName={product.title}
             />
           </div>

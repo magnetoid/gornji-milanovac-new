@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createBooking, BookingInput } from '@/lib/directus';
+import { BookingInput } from '@/lib/api';
 
 interface BookingFormProps {
   serviceId: string;
@@ -54,11 +54,20 @@ export default function BookingForm({
         customer_email: formData.customer_email,
         customer_phone: formData.customer_phone || undefined,
         requested_date: formData.requested_date,
-        requested_time: formData.requested_time || undefined,
+        requested_time: formData.requested_time || '09:00',
         message: formData.message || undefined,
       };
 
-      await createBooking(bookingData);
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create booking');
+      }
+
       setSubmitStatus('success');
       setFormData({
         customer_name: '',

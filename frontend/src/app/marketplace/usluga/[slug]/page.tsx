@@ -8,7 +8,8 @@ import {
   getAssetUrl,
   serviceCategoryLabels,
   Vendor,
-} from '@/lib/directus';
+  ServiceCategory,
+} from '@/lib/api';
 import ServiceCard from '@/components/ServiceCard';
 import BookingForm from '@/components/BookingForm';
 
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Usluga nije pronađena' };
   }
 
-  const firstImage = service.images?.[0]?.directus_files_id;
+  const firstImage = service.images?.[0];
 
   return {
     title: `${service.title} - Marketplace Gornji Milanovac`,
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: service.title,
       description: service.description?.replace(/<[^>]*>/g, '').slice(0, 160) || undefined,
-      images: firstImage ? [getAssetUrl(firstImage, { width: 1200, height: 630 }) || ''] : [],
+      images: firstImage ? [getAssetUrl(firstImage) || ''] : [],
     },
   };
 }
@@ -74,18 +75,18 @@ export default async function ServicePage({ params }: PageProps) {
     notFound();
   }
 
-  const vendor = service.vendor_id as Vendor | null;
-  const categoryLabel = service.category ? serviceCategoryLabels[service.category] : null;
-  const availableDays = parseAvailableDays(service.available_days);
+  const vendor = service.vendor as Partial<Vendor> | undefined;
+  const categoryLabel = service.category ? serviceCategoryLabels[service.category as ServiceCategory] : null;
+  const availableDays = service.available_days || [];
 
   // Get related services
   const relatedServices = await getServices({
-    category: service.category || undefined,
+    category: service.category as ServiceCategory || undefined,
     limit: 4,
   }).then((services) => services.filter((s) => s.id !== service.id).slice(0, 3));
 
-  const mainImage = service.images?.[0]?.directus_files_id;
-  const allImages = service.images?.map((img) => img.directus_files_id) || [];
+  const mainImage = service.images?.[0];
+  const allImages = service.images || [];
 
   return (
     <div className="container py-8 md:py-12">
@@ -127,7 +128,7 @@ export default async function ServicePage({ params }: PageProps) {
           <div className="relative aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden mb-4">
             {mainImage ? (
               <Image
-                src={getAssetUrl(mainImage, { width: 1000, height: 750, quality: 85 }) || ''}
+                src={getAssetUrl(mainImage) || ''}
                 alt={service.title}
                 fill
                 className="object-cover"
@@ -162,13 +163,13 @@ export default async function ServicePage({ params }: PageProps) {
           {/* Thumbnails */}
           {allImages.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-2">
-              {allImages.map((imageId, index) => (
+              {allImages.map((imageUrl, index) => (
                 <div
-                  key={imageId}
+                  key={index}
                   className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 border-border"
                 >
                   <Image
-                    src={getAssetUrl(imageId, { width: 160, height: 160 }) || ''}
+                    src={getAssetUrl(imageUrl) || ''}
                     alt={`${service.title} - slika ${index + 1}`}
                     fill
                     className="object-cover"
@@ -256,22 +257,22 @@ export default async function ServicePage({ params }: PageProps) {
             </p>
 
             {/* Vendor Info */}
-            {vendor && typeof vendor === 'object' && (
+            {vendor && (
               <Link
                 href={`/marketplace/vendor/${vendor.slug}`}
                 className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors mb-6"
               >
-                {vendor.logo ? (
+                {vendor.logo_url ? (
                   <Image
-                    src={getAssetUrl(vendor.logo, { width: 64, height: 64 }) || ''}
-                    alt={vendor.name}
+                    src={getAssetUrl(vendor.logo_url) || ''}
+                    alt={vendor.name || ''}
                     width={40}
                     height={40}
                     className="rounded-lg object-cover"
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-lg font-bold text-primary">{vendor.name.charAt(0)}</span>
+                    <span className="text-lg font-bold text-primary">{vendor.name?.charAt(0)}</span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
@@ -287,7 +288,7 @@ export default async function ServicePage({ params }: PageProps) {
             )}
 
             {/* Booking Form or Contact */}
-            {service.booking_enabled && vendor && typeof vendor === 'object' ? (
+            {service.booking_enabled && vendor?.id ? (
               <BookingForm
                 serviceId={service.id}
                 vendorId={vendor.id}
@@ -296,21 +297,21 @@ export default async function ServicePage({ params }: PageProps) {
               />
             ) : (
               <div className="space-y-3">
-                {(service.contact_phone || (vendor && typeof vendor === 'object' && vendor.phone)) && (
+                {(service.contact_phone || vendor?.phone) && (
                   <a
-                    href={`tel:${(service.contact_phone || (vendor as Vendor).phone)?.replace(/[^0-9+]/g, '')}`}
+                    href={`tel:${(service.contact_phone || vendor?.phone)?.replace(/[^0-9+]/g, '')}`}
                     className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    <span>Pozovi {service.contact_phone || (vendor as Vendor).phone}</span>
+                    <span>Pozovi {service.contact_phone || vendor?.phone}</span>
                   </a>
                 )}
 
-                {(service.contact_email || (vendor && typeof vendor === 'object' && vendor.email)) && (
+                {(service.contact_email || vendor?.email) && (
                   <a
-                    href={`mailto:${service.contact_email || (vendor as Vendor).email}`}
+                    href={`mailto:${service.contact_email || vendor?.email}`}
                     className="flex items-center justify-center gap-2 w-full py-3 px-4 border border-border text-text font-medium rounded-lg hover:border-primary hover:text-primary transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Product, Vendor, getAssetUrl, productCategoryLabels } from '@/lib/directus';
+import { Product, Vendor, getAssetUrl, productCategoryLabels, ProductCategory } from '@/lib/api';
 
 interface ProductCardProps {
   product: Product;
@@ -31,10 +31,10 @@ function formatPrice(price: number | null, unit: string | null): string {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const firstImage = product.images?.[0]?.directus_files_id;
-  const imageUrl = getAssetUrl(firstImage || null, { width: 400, height: 300, quality: 80 });
-  const vendor = product.vendor_id as Vendor | null;
-  const categoryLabel = product.category ? productCategoryLabels[product.category] : null;
+  const firstImage = product.images?.[0];
+  const imageUrl = getAssetUrl(firstImage || null);
+  const vendor = product.vendor as Partial<Vendor> | undefined;
+  const categoryLabel = product.category ? productCategoryLabels[product.category as ProductCategory] : null;
   const categoryColorClass = product.category ? categoryColors[product.category] : categoryColors.ostalo;
 
   return (
@@ -93,22 +93,22 @@ export default function ProductCard({ product }: ProductCardProps) {
         </p>
 
         {/* Vendor info */}
-        {vendor && typeof vendor === 'object' && (
+        {vendor && (
           <Link
             href={`/marketplace/vendor/${vendor.slug}`}
             className="flex items-center gap-2 text-xs text-text-muted hover:text-primary transition-colors"
           >
-            {vendor.logo ? (
+            {vendor.logo_url ? (
               <Image
-                src={getAssetUrl(vendor.logo, { width: 32, height: 32 }) || ''}
-                alt={vendor.name}
+                src={getAssetUrl(vendor.logo_url) || ''}
+                alt={vendor.name || ''}
                 width={20}
                 height={20}
                 className="rounded-full object-cover"
               />
             ) : (
               <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-xs font-bold text-primary">{vendor.name.charAt(0)}</span>
+                <span className="text-xs font-bold text-primary">{vendor.name?.charAt(0)}</span>
               </div>
             )}
             <span className="truncate">{vendor.name}</span>

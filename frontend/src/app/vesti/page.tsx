@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getPosts, getCategories, Category } from '@/lib/directus';
+import { getPosts, getCategories, Category } from '@/lib/api';
 import NewsCard from '@/components/NewsCard';
 
 export const revalidate = 60;

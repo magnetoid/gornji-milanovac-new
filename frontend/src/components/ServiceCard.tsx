@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Service, Vendor, getAssetUrl, serviceCategoryLabels } from '@/lib/directus';
+import { Service, Vendor, getAssetUrl, serviceCategoryLabels, ServiceCategory } from '@/lib/api';
 
 interface ServiceCardProps {
   service: Service;
@@ -26,10 +26,10 @@ function formatDuration(minutes: number | null): string {
 }
 
 export default function ServiceCard({ service }: ServiceCardProps) {
-  const firstImage = service.images?.[0]?.directus_files_id;
-  const imageUrl = getAssetUrl(firstImage || null, { width: 400, height: 300, quality: 80 });
-  const vendor = service.vendor_id as Vendor | null;
-  const categoryLabel = service.category ? serviceCategoryLabels[service.category] : null;
+  const firstImage = service.images?.[0];
+  const imageUrl = getAssetUrl(firstImage || null);
+  const vendor = service.vendor as Partial<Vendor> | undefined;
+  const categoryLabel = service.category ? serviceCategoryLabels[service.category as ServiceCategory] : null;
   const categoryColorClass = service.category ? categoryColors[service.category] : categoryColors.ostalo;
 
   return (
@@ -93,22 +93,22 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </div>
 
         {/* Vendor info */}
-        {vendor && typeof vendor === 'object' && (
+        {vendor && (
           <Link
             href={`/marketplace/vendor/${vendor.slug}`}
             className="flex items-center gap-2 text-xs text-text-muted hover:text-primary transition-colors mb-3"
           >
-            {vendor.logo ? (
+            {vendor.logo_url ? (
               <Image
-                src={getAssetUrl(vendor.logo, { width: 32, height: 32 }) || ''}
-                alt={vendor.name}
+                src={getAssetUrl(vendor.logo_url) || ''}
+                alt={vendor.name || ''}
                 width={20}
                 height={20}
                 className="rounded-full object-cover"
               />
             ) : (
               <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-xs font-bold text-primary">{vendor.name.charAt(0)}</span>
+                <span className="text-xs font-bold text-primary">{vendor.name?.charAt(0)}</span>
               </div>
             )}
             <span className="truncate">{vendor.name}</span>

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Post, Category, getAssetUrl, formatDate } from '@/lib/directus';
+import { Post, Category, getAssetUrl, formatDate } from '@/lib/api';
 
 interface NewsCardProps {
   post: Post;
@@ -33,7 +33,7 @@ export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
 
   // Featured variant - large hero card
   if (variant === 'featured') {
-    const imageUrl = getAssetUrl(post.featured_image, { width: 1200, height: 600, quality: 85 });
+    const imageUrl = getAssetUrl(post.featured_image);
 
     return (
       <article className="news-card group relative bg-dark rounded-xl overflow-hidden">
@@ -92,7 +92,7 @@ export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
 
   // Compact variant - sidebar/list style
   if (variant === 'compact') {
-    const imageUrl = getAssetUrl(post.featured_image, { width: 160, height: 120, quality: 75 });
+    const imageUrl = getAssetUrl(post.featured_image);
 
     return (
       <article className="group flex gap-3">
@@ -130,7 +130,7 @@ export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
   }
 
   // Medium variant (default) - grid cards
-  const imageUrl = getAssetUrl(post.featured_image, { width: 600, height: 400, quality: 80 });
+  const imageUrl = getAssetUrl(post.featured_image);
 
   return (
     <article className="news-card group bg-white border border-border rounded-lg overflow-hidden">

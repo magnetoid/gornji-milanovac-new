@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getListing, getListings, getAssetUrl, ListingCategory } from '@/lib/directus';
+import { getListingBySlug, getListings, getAssetUrl, ListingCategory } from '@/lib/api';
 import ListingCard from '@/components/ListingCard';
 
 export const revalidate = 60;
@@ -12,7 +12,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const listing = await getListing(params.slug);
+  const listing = await getListingBySlug(params.slug);
 
   if (!listing) {
     return {
@@ -20,15 +20,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const firstImage = listing.images?.[0]?.directus_files_id;
-  const ogImage = getAssetUrl(firstImage || null, { width: 1200, height: 630 });
+  const firstImage = listing.images?.[0];
+  const ogImage = getAssetUrl(firstImage || null);
 
   return {
     title: listing.title,
-    description: listing.content?.replace(/<[^>]*>/g, '').slice(0, 160) || `Oglas: ${listing.title}`,
+    description: listing.description?.replace(/<[^>]*>/g, '').slice(0, 160) || `Oglas: ${listing.title}`,
     openGraph: {
       title: listing.title,
-      description: listing.content?.replace(/<[^>]*>/g, '').slice(0, 160) || '',
+      description: listing.description?.replace(/<[^>]*>/g, '').slice(0, 160) || '',
       type: 'website',
       images: ogImage ? [{ url: ogImage }] : [],
     },
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ListingPage({ params }: PageProps) {
-  const listing = await getListing(params.slug);
+  const listing = await getListingBySlug(params.slug);
 
   if (!listing) {
     notFound();
@@ -102,16 +102,16 @@ export default async function ListingPage({ params }: PageProps) {
             <div className="mb-8">
               <div className="relative aspect-video rounded-lg overflow-hidden mb-4">
                 <Image
-                  src={getAssetUrl(images[0].directus_files_id, { width: 1200, height: 675 }) || ''}
+                  src={getAssetUrl(images[0]) || ''}
                   alt={listing.title}
                   fill
                   className="object-cover"
                   priority
                 />
-                {listing.status === 'sold' && (
+                {listing.status === 'expired' && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <span className="bg-red-600 text-white text-2xl font-bold px-6 py-3 rounded">
-                      PRODATO
+                      ISTEKAO
                     </span>
                   </div>
                 )}
@@ -122,7 +122,7 @@ export default async function ListingPage({ params }: PageProps) {
                   {images.slice(1, 5).map((image, index) => (
                     <div key={index} className="relative aspect-square rounded-md overflow-hidden">
                       <Image
-                        src={getAssetUrl(image.directus_files_id, { width: 200, height: 200 }) || ''}
+                        src={getAssetUrl(image) || ''}
                         alt={`${listing.title} - slika ${index + 2}`}
                         fill
                         className="object-cover"
@@ -160,7 +160,7 @@ export default async function ListingPage({ params }: PageProps) {
 
           <div
             className="prose max-w-none mb-8"
-            dangerouslySetInnerHTML={{ __html: listing.content || '' }}
+            dangerouslySetInnerHTML={{ __html: listing.description || '' }}
           />
         </div>
 

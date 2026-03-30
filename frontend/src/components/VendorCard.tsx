@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Vendor, getAssetUrl, vendorCategoryLabels } from '@/lib/directus';
+import { Vendor, getAssetUrl, vendorCategoryLabels, VendorCategory } from '@/lib/api';
 
 interface VendorCardProps {
   vendor: Vendor;
@@ -13,13 +13,15 @@ const categoryColors: Record<string, string> = {
   usluge: 'bg-blue-100 text-blue-800',
   trgovina: 'bg-purple-100 text-purple-800',
   turizam: 'bg-rose-100 text-rose-800',
+  lepota: 'bg-pink-100 text-pink-800',
+  edukacija: 'bg-indigo-100 text-indigo-800',
   ostalo: 'bg-gray-100 text-gray-800',
 };
 
 export default function VendorCard({ vendor, variant = 'grid' }: VendorCardProps) {
-  const logoUrl = getAssetUrl(vendor.logo, { width: 160, height: 160, quality: 80 });
-  const coverUrl = getAssetUrl(vendor.cover_image, { width: 800, height: 400, quality: 80 });
-  const categoryLabel = vendor.category ? vendorCategoryLabels[vendor.category] : null;
+  const logoUrl = getAssetUrl(vendor.logo_url);
+  const coverUrl = getAssetUrl(vendor.cover_url);
+  const categoryLabel = vendor.category ? vendorCategoryLabels[vendor.category as VendorCategory] : null;
   const categoryColorClass = vendor.category ? categoryColors[vendor.category] : categoryColors.ostalo;
 
   // Featured variant - wide card with cover image

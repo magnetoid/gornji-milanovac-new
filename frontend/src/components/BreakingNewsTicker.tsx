@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Post } from '@/lib/directus';
+import { Post } from '@/lib/api';
 
 interface BreakingNewsTickerProps {
   posts: Post[];

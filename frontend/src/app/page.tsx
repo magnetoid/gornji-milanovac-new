@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { getPosts, getCategories, getListings, Post, Category } from '@/lib/directus';
+import { getPosts, getCategories, getListings, Post, Category, formatDate, getAssetUrl } from '@/lib/api';
 import NewsCard from '@/components/NewsCard';
 import ListingCard from '@/components/ListingCard';
 import BreakingNewsTicker from '@/components/BreakingNewsTicker';

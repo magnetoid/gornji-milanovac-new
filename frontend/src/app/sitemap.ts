@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getPosts, getListings } from '@/lib/directus';
+import { getPosts, getListings } from '@/lib/api';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://new.gornji-milanovac.com';

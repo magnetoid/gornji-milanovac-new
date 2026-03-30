@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Listing, ListingCategory, getAssetUrl, formatDate } from '@/lib/directus';
+import { Listing, ListingCategory, getAssetUrl, formatDate } from '@/lib/api';
 
 interface ListingCardProps {
   listing: Listing;
@@ -39,11 +39,11 @@ function formatPrice(price: number | null): string {
 }
 
 export default function ListingCard({ listing }: ListingCardProps) {
-  const category = listing.category as ListingCategory | null;
-  const firstImage = listing.images?.[0]?.directus_files_id;
-  const imageUrl = getAssetUrl(firstImage || null, { width: 400, height: 300, quality: 80 });
+  const category = listing.category as ListingCategory | undefined;
+  const firstImage = listing.images?.[0];
+  const imageUrl = getAssetUrl(firstImage || null);
   const categoryIcon = categoryIcons[category?.slug || 'default'] || categoryIcons.default;
-  const isSold = listing.status === 'sold';
+  const isSold = listing.status === 'expired';
 
   return (
     <article className={`group bg-white border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-md ${isSold ? 'opacity-75' : ''}`}>
@@ -74,7 +74,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
           {isSold && (
             <div className="absolute inset-0 bg-dark/60 flex items-center justify-center">
               <span className="bg-accent text-white text-sm font-bold uppercase px-4 py-2 rounded">
-                Prodato
+                Istekao
               </span>
             </div>
           )}
@@ -104,7 +104,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
           )}
 
           <time className="text-xs text-text-light">
-            {formatDate(listing.expires_at)}
+            {formatDate(listing.created_at)}
           </time>
         </div>
       </div>

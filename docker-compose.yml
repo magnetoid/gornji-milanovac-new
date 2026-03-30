@@ -1,8 +1,7 @@
-version: "3.8"
-
+version: '3.8'
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: gornji_milanovac
@@ -10,41 +9,24 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01_init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gm_user -d gornji_milanovac"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  directus:
-    image: directus/directus:latest
+  redis:
+    image: redis:7-alpine
     restart: unless-stopped
-    ports:
-      - "8055:8055"
-    environment:
-      SECRET: ${DIRECTUS_SECRET}
-      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
-      DB_CLIENT: pg
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: gornji_milanovac
-      DB_USER: gm_user
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      STORAGE_LOCATIONS: local
-      STORAGE_LOCAL_ROOT: /directus/uploads
-      PUBLIC_URL: ${DIRECTUS_PUBLIC_URL:-https://api.new.gornji-milanovac.com}
-      CORS_ENABLED: "true"
-      CORS_ORIGIN: "true"
-      CACHE_ENABLED: "true"
-      CACHE_AUTO_PURGE: "true"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
-      - directus_uploads:/directus/uploads
-      - directus_extensions:/directus/extensions
-      - ./directus/snapshot.yaml:/directus/snapshot.yaml:ro
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   nextjs:
     build:
@@ -54,14 +36,22 @@ services:
     ports:
       - "3021:3000"
     environment:
-      DIRECTUS_URL: http://directus:8055
-      DIRECTUS_TOKEN: ${DIRECTUS_TOKEN}
+      DATABASE_URL: postgresql://gm_user:${POSTGRES_PASSWORD}@postgres:5432/gornji_milanovac
+      REDIS_URL: redis://redis:6379
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXT_PUBLIC_SITE_URL}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://new.gornji-milanovac.com}
-      NEXT_PUBLIC_DIRECTUS_URL: ${DIRECTUS_PUBLIC_URL:-https://api.new.gornji-milanovac.com}
+      NEXT_PUBLIC_UPLOAD_URL: ${NEXT_PUBLIC_SITE_URL:-https://new.gornji-milanovac.com}/uploads
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
     depends_on:
-      - directus
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:
-  directus_uploads:
-  directus_extensions:
+  redis_data:
+  uploads:

@@ -11,7 +11,7 @@ import {
   vendorCategoryLabels,
   productCategoryLabels,
   serviceCategoryLabels,
-} from '@/lib/directus';
+} from '@/lib/api';
 import VendorCard from '@/components/VendorCard';
 import ProductCard from '@/components/ProductCard';
 import ServiceCard from '@/components/ServiceCard';

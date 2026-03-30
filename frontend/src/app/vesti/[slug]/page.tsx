@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getPost, getPosts, getAssetUrl, formatDate, Category, Tag } from '@/lib/directus';
+import { getPostBySlug, getPosts, getAssetUrl, formatDate, Category } from '@/lib/api';
 import NewsCard from '@/components/NewsCard';
 
 export const revalidate = 60;
@@ -12,7 +12,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = await getPost(params.slug);
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     return {
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const ogImage = getAssetUrl(post.featured_image, { width: 1200, height: 630 });
+  const ogImage = getAssetUrl(post.featured_image);
 
   return {
     title: post.title,
@@ -58,15 +58,15 @@ function getCategoryBadgeClass(slug: string | undefined): string {
 }
 
 export default async function PostPage({ params }: PageProps) {
-  const post = await getPost(params.slug);
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     notFound();
   }
 
   const category = post.category as Category | null;
-  const tags = post.tags?.map((t) => t.tags_id) || [];
-  const imageUrl = getAssetUrl(post.featured_image, { width: 1200, height: 600 });
+  const tags = post.tags || [];
+  const imageUrl = getAssetUrl(post.featured_image);
 
   let relatedPosts: any[] = [];
   if (category) {
@@ -160,7 +160,7 @@ export default async function PostPage({ params }: PageProps) {
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  {post.author}
+                  {post.author.name}
                 </span>
               )}
               <time className="flex items-center gap-1.5">
@@ -215,12 +215,12 @@ export default async function PostPage({ params }: PageProps) {
                       Tagovi
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {tags.map((tag: Tag) => (
+                      {tags.map((tag: string, index: number) => (
                         <span
-                          key={tag.id}
+                          key={index}
                           className="px-3 py-1 bg-surface-alt text-text-muted text-sm rounded-full hover:bg-border transition-colors"
                         >
-                          #{tag.name}
+                          #{tag}
                         </span>
                       ))}
                     </div>

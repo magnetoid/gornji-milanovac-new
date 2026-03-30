@@ -8,7 +8,8 @@ import {
   getServices,
   getAssetUrl,
   vendorCategoryLabels,
-} from '@/lib/directus';
+  VendorCategory,
+} from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 import ServiceCard from '@/components/ServiceCard';
 
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: vendor.name,
       description: vendor.description?.replace(/<[^>]*>/g, '').slice(0, 160) || undefined,
-      images: vendor.cover_image ? [getAssetUrl(vendor.cover_image, { width: 1200, height: 630 }) || ''] : [],
+      images: vendor.cover_url ? [getAssetUrl(vendor.cover_url) || ''] : [],
     },
   };
 }
@@ -50,9 +51,9 @@ export default async function VendorPage({ params }: PageProps) {
     getServices({ vendorId: vendor.id, limit: 12 }),
   ]);
 
-  const logoUrl = getAssetUrl(vendor.logo, { width: 200, height: 200, quality: 85 });
-  const coverUrl = getAssetUrl(vendor.cover_image, { width: 1600, height: 600, quality: 85 });
-  const categoryLabel = vendor.category ? vendorCategoryLabels[vendor.category] : null;
+  const logoUrl = getAssetUrl(vendor.logo_url);
+  const coverUrl = getAssetUrl(vendor.cover_url);
+  const categoryLabel = vendor.category ? vendorCategoryLabels[vendor.category as VendorCategory] : null;
 
   return (
     <>

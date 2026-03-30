@@ -6,7 +6,7 @@ import {
   getServices,
   getMarketplaceStats,
   VendorCategory,
-} from '@/lib/directus';
+} from '@/lib/api';
 import VendorCard from '@/components/VendorCard';
 import ProductCard from '@/components/ProductCard';
 import ServiceCard from '@/components/ServiceCard';

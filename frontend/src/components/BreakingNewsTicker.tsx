@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Post } from '@/lib/directus';
 
@@ -9,69 +9,91 @@ interface BreakingNewsTickerProps {
 }
 
 export default function BreakingNewsTicker({ posts }: BreakingNewsTickerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (posts.length <= 1) return;
+    if (!scrollRef.current || posts.length === 0) return;
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % posts.length);
-    }, 5000);
+    const scrollElement = scrollRef.current;
+    let animationId: number;
+    let startTime: number;
+    const duration = 30000; // 30 seconds for full scroll
+    const scrollWidth = scrollElement.scrollWidth / 2;
 
-    return () => clearInterval(interval);
-  }, [posts.length]);
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+
+      if (!isPaused) {
+        const elapsed = timestamp - startTime;
+        const progress = (elapsed % duration) / duration;
+        scrollElement.scrollLeft = progress * scrollWidth;
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationId);
+  }, [posts, isPaused]);
 
   if (posts.length === 0) return null;
 
+  const separator = (
+    <span className="mx-4 text-white/50 font-bold">&#183;</span>
+  );
+
   return (
-    <div className="bg-secondary text-gray-900 py-2">
+    <div
+      className="breaking-ticker py-2"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div className="container">
-        <div className="flex items-center">
-          <span className="bg-primary text-white text-xs font-bold uppercase px-3 py-1 rounded mr-4 flex-shrink-0">
-            Najnovije
+        <div className="flex items-center gap-4">
+          <span className="breaking-ticker-label flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+            </span>
+            NAJVAŽNIJE
           </span>
 
-          <div className="overflow-hidden flex-1">
-            <div className="relative h-6">
+          <div
+            ref={scrollRef}
+            className="breaking-ticker-content overflow-hidden"
+          >
+            <div className="flex whitespace-nowrap">
+              {/* First set of headlines */}
               {posts.map((post, index) => (
-                <Link
-                  key={post.id}
-                  href={`/vesti/${post.slug}`}
-                  className={`absolute inset-0 flex items-center transition-opacity duration-500 hover:underline ${
-                    index === currentIndex ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <span className="truncate font-medium">{post.title}</span>
-                </Link>
+                <span key={`first-${post.id}`} className="inline-flex items-center">
+                  <Link
+                    href={`/vesti/${post.slug}`}
+                    className="text-white hover:text-secondary font-medium transition-colors"
+                  >
+                    {post.title}
+                  </Link>
+                  {index < posts.length - 1 && separator}
+                </span>
+              ))}
+
+              {separator}
+
+              {/* Duplicate for seamless loop */}
+              {posts.map((post, index) => (
+                <span key={`second-${post.id}`} className="inline-flex items-center">
+                  <Link
+                    href={`/vesti/${post.slug}`}
+                    className="text-white hover:text-secondary font-medium transition-colors"
+                  >
+                    {post.title}
+                  </Link>
+                  {index < posts.length - 1 && separator}
+                </span>
               ))}
             </div>
           </div>
-
-          {posts.length > 1 && (
-            <div className="flex items-center ml-4 space-x-2 flex-shrink-0">
-              <button
-                onClick={() => setCurrentIndex((prev) => (prev - 1 + posts.length) % posts.length)}
-                className="p-1 hover:bg-secondary-700 rounded"
-                aria-label="Prethodna vest"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <span className="text-xs">
-                {currentIndex + 1}/{posts.length}
-              </span>
-              <button
-                onClick={() => setCurrentIndex((prev) => (prev + 1) % posts.length)}
-                className="p-1 hover:bg-secondary-700 rounded"
-                aria-label="Sledeća vest"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>https://new.gornji-milanovac.com</loc>
+<lastmod>2026-03-30T03:36:06.105Z</lastmod>
+<changefreq>hourly</changefreq>
+<priority>1</priority>
+</url>
+<url>
+<loc>https://new.gornji-milanovac.com/vesti</loc>
+<lastmod>2026-03-30T03:36:06.139Z</lastmod>
+<changefreq>hourly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://new.gornji-milanovac.com/oglasi</loc>
+<lastmod>2026-03-30T03:36:06.139Z</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://new.gornji-milanovac.com/o-gradu</loc>
+<lastmod>2026-03-30T03:36:06.139Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://new.gornji-milanovac.com/kontakt</loc>
+<lastmod>2026-03-30T03:36:06.139Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.6</priority>
+</url>
+</urlset>

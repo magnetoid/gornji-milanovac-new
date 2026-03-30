@@ -1,0 +1,750 @@
+{
+  "collections": [
+    {
+      "collection": "categories",
+      "meta": {
+        "icon": "folder",
+        "note": "Kategorije vesti",
+        "display_template": "{{name}}",
+        "archive_field": null,
+        "archive_value": null,
+        "sort_field": null,
+        "accountability": "all",
+        "translations": null,
+        "singleton": false
+      },
+      "schema": {
+        "name": "categories"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true,
+            "interface": "input",
+            "readonly": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "name",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false
+          }
+        },
+        {
+          "field": "slug",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false,
+            "is_unique": true
+          }
+        },
+        {
+          "field": "description",
+          "type": "text",
+          "meta": {
+            "interface": "input-multiline"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "parent",
+          "type": "integer",
+          "meta": {
+            "interface": "select-dropdown-m2o",
+            "special": ["m2o"]
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "wp_id",
+          "type": "integer",
+          "meta": {
+            "interface": "input",
+            "note": "ID iz WordPress-a za migraciju"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        }
+      ]
+    },
+    {
+      "collection": "tags",
+      "meta": {
+        "icon": "label",
+        "note": "Tagovi za vesti",
+        "display_template": "{{name}}",
+        "singleton": false
+      },
+      "schema": {
+        "name": "tags"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true,
+            "interface": "input",
+            "readonly": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "name",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false
+          }
+        },
+        {
+          "field": "slug",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false,
+            "is_unique": true
+          }
+        },
+        {
+          "field": "wp_id",
+          "type": "integer",
+          "meta": {
+            "interface": "input",
+            "note": "ID iz WordPress-a za migraciju"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        }
+      ]
+    },
+    {
+      "collection": "posts",
+      "meta": {
+        "icon": "article",
+        "note": "Vesti i članci",
+        "display_template": "{{title}}",
+        "archive_field": "status",
+        "archive_value": "archived",
+        "sort_field": "published_at",
+        "singleton": false
+      },
+      "schema": {
+        "name": "posts"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true,
+            "interface": "input",
+            "readonly": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "title",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "full"
+          },
+          "schema": {
+            "is_nullable": false
+          }
+        },
+        {
+          "field": "slug",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true
+          },
+          "schema": {
+            "is_nullable": false,
+            "is_unique": true
+          }
+        },
+        {
+          "field": "content",
+          "type": "text",
+          "meta": {
+            "interface": "input-rich-text-html",
+            "width": "full"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "excerpt",
+          "type": "text",
+          "meta": {
+            "interface": "input-multiline",
+            "width": "full"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "status",
+          "type": "string",
+          "meta": {
+            "interface": "select-dropdown",
+            "options": {
+              "choices": [
+                { "text": "Objavljeno", "value": "published" },
+                { "text": "Nacrt", "value": "draft" },
+                { "text": "Zakazano", "value": "scheduled" },
+                { "text": "Arhivirano", "value": "archived" }
+              ]
+            },
+            "default_value": "draft",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false,
+            "default_value": "draft"
+          }
+        },
+        {
+          "field": "featured_image",
+          "type": "uuid",
+          "meta": {
+            "interface": "file-image",
+            "special": ["file"]
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "author",
+          "type": "uuid",
+          "meta": {
+            "interface": "select-dropdown-m2o",
+            "special": ["m2o"],
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "published_at",
+          "type": "timestamp",
+          "meta": {
+            "interface": "datetime",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "category",
+          "type": "integer",
+          "meta": {
+            "interface": "select-dropdown-m2o",
+            "special": ["m2o"],
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "source_url",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "note": "Originalni URL članka",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "source_name",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "note": "Naziv izvora (npr. GM Info, Telegraf)",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "wp_id",
+          "type": "integer",
+          "meta": {
+            "interface": "input",
+            "note": "ID iz WordPress-a za migraciju",
+            "hidden": true
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        }
+      ]
+    },
+    {
+      "collection": "posts_tags",
+      "meta": {
+        "hidden": true,
+        "icon": "import_export"
+      },
+      "schema": {
+        "name": "posts_tags"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "posts_id",
+          "type": "integer",
+          "schema": {}
+        },
+        {
+          "field": "tags_id",
+          "type": "integer",
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "collection": "pages",
+      "meta": {
+        "icon": "description",
+        "note": "Statične stranice",
+        "display_template": "{{title}}",
+        "singleton": false
+      },
+      "schema": {
+        "name": "pages"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true,
+            "interface": "input",
+            "readonly": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "title",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true
+          },
+          "schema": {
+            "is_nullable": false
+          }
+        },
+        {
+          "field": "slug",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true
+          },
+          "schema": {
+            "is_nullable": false,
+            "is_unique": true
+          }
+        },
+        {
+          "field": "content",
+          "type": "text",
+          "meta": {
+            "interface": "input-rich-text-html"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "status",
+          "type": "string",
+          "meta": {
+            "interface": "select-dropdown",
+            "options": {
+              "choices": [
+                { "text": "Objavljeno", "value": "published" },
+                { "text": "Nacrt", "value": "draft" }
+              ]
+            },
+            "default_value": "draft"
+          },
+          "schema": {
+            "is_nullable": false,
+            "default_value": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "collection": "listings_categories",
+      "meta": {
+        "icon": "category",
+        "note": "Kategorije oglasa",
+        "display_template": "{{name}}",
+        "singleton": false
+      },
+      "schema": {
+        "name": "listings_categories"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true,
+            "interface": "input",
+            "readonly": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "name",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false
+          }
+        },
+        {
+          "field": "slug",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true,
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false,
+            "is_unique": true
+          }
+        }
+      ]
+    },
+    {
+      "collection": "listings",
+      "meta": {
+        "icon": "storefront",
+        "note": "Mali oglasi",
+        "display_template": "{{title}}",
+        "singleton": false
+      },
+      "schema": {
+        "name": "listings"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true,
+            "interface": "input",
+            "readonly": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "title",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true
+          },
+          "schema": {
+            "is_nullable": false
+          }
+        },
+        {
+          "field": "slug",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "required": true
+          },
+          "schema": {
+            "is_nullable": false,
+            "is_unique": true
+          }
+        },
+        {
+          "field": "content",
+          "type": "text",
+          "meta": {
+            "interface": "input-rich-text-html"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "price",
+          "type": "decimal",
+          "meta": {
+            "interface": "input",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true,
+            "numeric_precision": 10,
+            "numeric_scale": 2
+          }
+        },
+        {
+          "field": "category",
+          "type": "integer",
+          "meta": {
+            "interface": "select-dropdown-m2o",
+            "special": ["m2o"],
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "contact_email",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "contact_phone",
+          "type": "string",
+          "meta": {
+            "interface": "input",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "location",
+          "type": "string",
+          "meta": {
+            "interface": "input"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        },
+        {
+          "field": "status",
+          "type": "string",
+          "meta": {
+            "interface": "select-dropdown",
+            "options": {
+              "choices": [
+                { "text": "Aktivan", "value": "active" },
+                { "text": "Neaktivan", "value": "inactive" },
+                { "text": "Prodat", "value": "sold" }
+              ]
+            },
+            "default_value": "active",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": false,
+            "default_value": "active"
+          }
+        },
+        {
+          "field": "expires_at",
+          "type": "timestamp",
+          "meta": {
+            "interface": "datetime",
+            "width": "half"
+          },
+          "schema": {
+            "is_nullable": true
+          }
+        }
+      ]
+    },
+    {
+      "collection": "listings_files",
+      "meta": {
+        "hidden": true,
+        "icon": "import_export"
+      },
+      "schema": {
+        "name": "listings_files"
+      },
+      "fields": [
+        {
+          "field": "id",
+          "type": "integer",
+          "meta": {
+            "hidden": true
+          },
+          "schema": {
+            "is_primary_key": true,
+            "has_auto_increment": true
+          }
+        },
+        {
+          "field": "listings_id",
+          "type": "integer",
+          "schema": {}
+        },
+        {
+          "field": "directus_files_id",
+          "type": "uuid",
+          "schema": {}
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "collection": "categories",
+      "field": "parent",
+      "related_collection": "categories",
+      "meta": {
+        "one_field": "children"
+      }
+    },
+    {
+      "collection": "posts",
+      "field": "featured_image",
+      "related_collection": "directus_files"
+    },
+    {
+      "collection": "posts",
+      "field": "author",
+      "related_collection": "directus_users"
+    },
+    {
+      "collection": "posts",
+      "field": "category",
+      "related_collection": "categories",
+      "meta": {
+        "one_field": "posts"
+      }
+    },
+    {
+      "collection": "posts_tags",
+      "field": "posts_id",
+      "related_collection": "posts",
+      "meta": {
+        "one_field": "tags",
+        "junction_field": "tags_id"
+      }
+    },
+    {
+      "collection": "posts_tags",
+      "field": "tags_id",
+      "related_collection": "tags",
+      "meta": {
+        "one_field": "posts",
+        "junction_field": "posts_id"
+      }
+    },
+    {
+      "collection": "listings",
+      "field": "category",
+      "related_collection": "listings_categories",
+      "meta": {
+        "one_field": "listings"
+      }
+    },
+    {
+      "collection": "listings_files",
+      "field": "listings_id",
+      "related_collection": "listings",
+      "meta": {
+        "one_field": "images",
+        "junction_field": "directus_files_id"
+      }
+    },
+    {
+      "collection": "listings_files",
+      "field": "directus_files_id",
+      "related_collection": "directus_files",
+      "meta": {
+        "junction_field": "listings_id"
+      }
+    }
+  ]
+}

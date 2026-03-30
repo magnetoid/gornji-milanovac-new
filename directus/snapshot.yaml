@@ -1,0 +1,668 @@
+version: 1
+directus: 10.10.0
+
+collections:
+  - collection: categories
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: categories
+      color: null
+      display_template: "{{name}}"
+      group: null
+      hidden: false
+      icon: folder
+      item_duplication_fields: null
+      note: Kategorije vesti
+      preview_url: null
+      singleton: false
+      sort: null
+      sort_field: null
+      translations: null
+      unarchive_value: null
+      versioning: false
+    schema:
+      name: categories
+
+  - collection: tags
+    meta:
+      accountability: all
+      collection: tags
+      display_template: "{{name}}"
+      hidden: false
+      icon: label
+      note: Tagovi za vesti
+      singleton: false
+    schema:
+      name: tags
+
+  - collection: posts
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: status
+      archive_value: archived
+      collection: posts
+      display_template: "{{title}}"
+      hidden: false
+      icon: article
+      note: Vesti i članci
+      singleton: false
+      sort_field: null
+    schema:
+      name: posts
+
+  - collection: posts_tags
+    meta:
+      collection: posts_tags
+      hidden: true
+      icon: import_export
+    schema:
+      name: posts_tags
+
+  - collection: pages
+    meta:
+      accountability: all
+      collection: pages
+      display_template: "{{title}}"
+      hidden: false
+      icon: description
+      note: Statične stranice
+      singleton: false
+    schema:
+      name: pages
+
+  - collection: listings_categories
+    meta:
+      accountability: all
+      collection: listings_categories
+      display_template: "{{name}}"
+      hidden: false
+      icon: category
+      note: Kategorije oglasa
+      singleton: false
+    schema:
+      name: listings_categories
+
+  - collection: listings
+    meta:
+      accountability: all
+      collection: listings
+      display_template: "{{title}}"
+      hidden: false
+      icon: storefront
+      note: Mali oglasi
+      singleton: false
+    schema:
+      name: listings
+
+  - collection: listings_files
+    meta:
+      collection: listings_files
+      hidden: true
+      icon: import_export
+    schema:
+      name: listings_files
+
+fields:
+  # Categories
+  - collection: categories
+    field: id
+    type: integer
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: categories
+    field: name
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+
+  - collection: categories
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: categories
+    field: description
+    type: text
+    meta:
+      interface: input-multiline
+    schema:
+      is_nullable: true
+
+  - collection: categories
+    field: parent
+    type: integer
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+    schema:
+      is_nullable: true
+
+  - collection: categories
+    field: wp_id
+    type: integer
+    meta:
+      interface: input
+      note: ID iz WordPress-a za migraciju
+    schema:
+      is_nullable: true
+
+  # Tags
+  - collection: tags
+    field: id
+    type: integer
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: tags
+    field: name
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+
+  - collection: tags
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: tags
+    field: wp_id
+    type: integer
+    meta:
+      interface: input
+      note: ID iz WordPress-a za migraciju
+    schema:
+      is_nullable: true
+
+  # Posts
+  - collection: posts
+    field: id
+    type: integer
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: posts
+    field: title
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: full
+    schema:
+      is_nullable: false
+
+  - collection: posts
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: posts
+    field: content
+    type: text
+    meta:
+      interface: input-rich-text-html
+      width: full
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: excerpt
+    type: text
+    meta:
+      interface: input-multiline
+      width: full
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Objavljeno
+            value: published
+          - text: Nacrt
+            value: draft
+          - text: Zakazano
+            value: scheduled
+          - text: Arhivirano
+            value: archived
+      default_value: draft
+      width: half
+    schema:
+      is_nullable: false
+      default_value: draft
+
+  - collection: posts
+    field: featured_image
+    type: uuid
+    meta:
+      interface: file-image
+      special:
+        - file
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: author
+    type: uuid
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: published_at
+    type: timestamp
+    meta:
+      interface: datetime
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: category
+    type: integer
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: tags
+    type: alias
+    meta:
+      interface: list-m2m
+      special:
+        - m2m
+    schema: null
+
+  - collection: posts
+    field: source_url
+    type: string
+    meta:
+      interface: input
+      note: Originalni URL članka
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: source_name
+    type: string
+    meta:
+      interface: input
+      note: Naziv izvora (npr. GM Info, Telegraf)
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: posts
+    field: wp_id
+    type: integer
+    meta:
+      interface: input
+      note: ID iz WordPress-a za migraciju
+      hidden: true
+    schema:
+      is_nullable: true
+
+  # Posts_Tags junction
+  - collection: posts_tags
+    field: id
+    type: integer
+    meta:
+      hidden: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: posts_tags
+    field: posts_id
+    type: integer
+    schema: {}
+
+  - collection: posts_tags
+    field: tags_id
+    type: integer
+    schema: {}
+
+  # Pages
+  - collection: pages
+    field: id
+    type: integer
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: pages
+    field: title
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+
+  - collection: pages
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: pages
+    field: content
+    type: text
+    meta:
+      interface: input-rich-text-html
+    schema:
+      is_nullable: true
+
+  - collection: pages
+    field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Objavljeno
+            value: published
+          - text: Nacrt
+            value: draft
+      default_value: draft
+    schema:
+      is_nullable: false
+      default_value: draft
+
+  # Listings Categories
+  - collection: listings_categories
+    field: id
+    type: integer
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: listings_categories
+    field: name
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+
+  - collection: listings_categories
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+      width: half
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  # Listings
+  - collection: listings
+    field: id
+    type: integer
+    meta:
+      hidden: true
+      interface: input
+      readonly: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: listings
+    field: title
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+
+  - collection: listings
+    field: slug
+    type: string
+    meta:
+      interface: input
+      required: true
+    schema:
+      is_nullable: false
+      is_unique: true
+
+  - collection: listings
+    field: content
+    type: text
+    meta:
+      interface: input-rich-text-html
+    schema:
+      is_nullable: true
+
+  - collection: listings
+    field: price
+    type: decimal
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+      numeric_precision: 10
+      numeric_scale: 2
+
+  - collection: listings
+    field: category
+    type: integer
+    meta:
+      interface: select-dropdown-m2o
+      special:
+        - m2o
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: listings
+    field: contact_email
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: listings
+    field: contact_phone
+    type: string
+    meta:
+      interface: input
+      width: half
+    schema:
+      is_nullable: true
+
+  - collection: listings
+    field: location
+    type: string
+    meta:
+      interface: input
+    schema:
+      is_nullable: true
+
+  - collection: listings
+    field: status
+    type: string
+    meta:
+      interface: select-dropdown
+      options:
+        choices:
+          - text: Aktivan
+            value: active
+          - text: Neaktivan
+            value: inactive
+          - text: Prodat
+            value: sold
+      default_value: active
+      width: half
+    schema:
+      is_nullable: false
+      default_value: active
+
+  - collection: listings
+    field: images
+    type: alias
+    meta:
+      interface: files
+      special:
+        - files
+    schema: null
+
+  - collection: listings
+    field: expires_at
+    type: timestamp
+    meta:
+      interface: datetime
+      width: half
+    schema:
+      is_nullable: true
+
+  # Listings_Files junction
+  - collection: listings_files
+    field: id
+    type: integer
+    meta:
+      hidden: true
+    schema:
+      is_primary_key: true
+      has_auto_increment: true
+
+  - collection: listings_files
+    field: listings_id
+    type: integer
+    schema: {}
+
+  - collection: listings_files
+    field: directus_files_id
+    type: uuid
+    schema: {}
+
+relations:
+  - collection: categories
+    field: parent
+    related_collection: categories
+    meta:
+      one_field: children
+
+  - collection: posts
+    field: featured_image
+    related_collection: directus_files
+
+  - collection: posts
+    field: author
+    related_collection: directus_users
+
+  - collection: posts
+    field: category
+    related_collection: categories
+    meta:
+      one_field: posts
+
+  - collection: posts_tags
+    field: posts_id
+    related_collection: posts
+    meta:
+      one_field: tags
+      junction_field: tags_id
+
+  - collection: posts_tags
+    field: tags_id
+    related_collection: tags
+    meta:
+      one_field: posts
+      junction_field: posts_id
+
+  - collection: listings
+    field: category
+    related_collection: listings_categories
+    meta:
+      one_field: listings
+
+  - collection: listings_files
+    field: listings_id
+    related_collection: listings
+    meta:
+      one_field: images
+      junction_field: directus_files_id
+
+  - collection: listings_files
+    field: directus_files_id
+    related_collection: directus_files
+    meta:
+      junction_field: listings_id

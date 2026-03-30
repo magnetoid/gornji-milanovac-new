@@ -1,0 +1,12 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/o-gradu/page": "app/o-gradu/page.js",
+  "/kontakt/page": "app/kontakt/page.js",
+  "/oglasi/page": "app/oglasi/page.js",
+  "/vesti/page": "app/vesti/page.js",
+  "/page": "app/page.js",
+  "/oglasi/[slug]/page": "app/oglasi/[slug]/page.js",
+  "/vesti/[slug]/page": "app/vesti/[slug]/page.js"
+}

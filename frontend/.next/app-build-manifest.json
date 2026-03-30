@@ -1,0 +1,89 @@
+{
+  "pages": {
+    "/not-found": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/app/not-found-bdc9f2540ac48403.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/app/_not-found/page-3fb1e6d314c2d9fd.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/css/306fbbf74c96cfca.css",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/app/layout-380f85f654cc0c73.js"
+    ],
+    "/o-gradu/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/app/o-gradu/page-33f5cccdc8888f14.js"
+    ],
+    "/kontakt/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/app/kontakt/page-6a53dbc62365906d.js"
+    ],
+    "/oglasi/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/173-6d759b3a81e5ab37.js",
+      "static/chunks/app/oglasi/page-f1754936ba94f859.js"
+    ],
+    "/vesti/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/173-6d759b3a81e5ab37.js",
+      "static/chunks/app/vesti/page-3451e8c08dd3da14.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/173-6d759b3a81e5ab37.js",
+      "static/chunks/app/page-6a19497913cd6c7e.js"
+    ],
+    "/oglasi/[slug]/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/173-6d759b3a81e5ab37.js",
+      "static/chunks/app/oglasi/[slug]/page-7a5a3f1eb92ee9ea.js"
+    ],
+    "/vesti/[slug]/page": [
+      "static/chunks/webpack-6ee8d1cc97601ee0.js",
+      "static/chunks/fd9d1056-62aaf4b921c84028.js",
+      "static/chunks/23-6584adcaa818d993.js",
+      "static/chunks/main-app-6a2612a71d4da79e.js",
+      "static/chunks/231-79af95f00a2a104b.js",
+      "static/chunks/173-6d759b3a81e5ab37.js",
+      "static/chunks/app/vesti/[slug]/page-bd0c86bcde43e681.js"
+    ]
+  }
+}

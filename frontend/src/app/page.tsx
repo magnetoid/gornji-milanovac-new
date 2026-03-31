@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getPosts, getCategories, getListings, Post, Category, formatDate, getAssetUrl } from '@/lib/api';
@@ -5,7 +6,11 @@ import NewsCard from '@/components/NewsCard';
 import ListingCard from '@/components/ListingCard';
 import BreakingNewsTicker from '@/components/BreakingNewsTicker';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Ensure no static caching
+function ensureNoCache() { try { noStore(); } catch {} }
 
 export const metadata: Metadata = {
   title: 'Gornji Milanovac - Digitalni Portal Šumadije',
@@ -18,6 +23,7 @@ export const metadata: Metadata = {
 };
 
 async function getHomeData() {
+  ensureNoCache();
   try {
     const [latestPosts, categories, listings] = await Promise.all([
       getPosts({ limit: 17 }),

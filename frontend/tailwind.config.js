@@ -8,9 +8,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Deep forest green - Šumadija
         primary: {
           DEFAULT: '#1B5E20',
-          dark: '#1a3a1f',
+          light: '#2E7D32',
+          dark: '#0a2e0d',
           50: '#E8F5E9',
           100: '#C8E6C9',
           200: '#A5D6A7',
@@ -22,39 +24,74 @@ module.exports = {
           800: '#2E7D32',
           900: '#1B5E20',
         },
-        secondary: {
+        // Warm amber/gold - harvest colors
+        accent: {
           DEFAULT: '#F57F17',
-          50: '#FFFDE7',
-          100: '#FFF9C4',
-          200: '#FFF59D',
-          300: '#FFF176',
-          400: '#FFEE58',
-          500: '#FFEB3B',
-          600: '#FDD835',
-          700: '#FBC02D',
-          800: '#F9A825',
+          light: '#FFB300',
+          dark: '#E65100',
+          50: '#FFF8E1',
+          100: '#FFECB3',
+          200: '#FFE082',
+          300: '#FFD54F',
+          400: '#FFCA28',
+          500: '#FFC107',
+          600: '#FFB300',
+          700: '#FFA000',
+          800: '#FF8F00',
           900: '#F57F17',
         },
-        accent: {
-          DEFAULT: '#D32F2F',
+        // Red for breaking news / urgent
+        red: {
+          DEFAULT: '#C62828',
           light: '#EF5350',
           dark: '#B71C1C',
         },
-        dark: '#0D1117',
+        // Surfaces - warm whites
         surface: {
           DEFAULT: '#FFFFFF',
-          alt: '#F8F9FA',
+          warm: '#FAFAF7',
+          muted: '#F4F3EF',
         },
-        border: '#E5E7EB',
+        // Warm border
+        border: {
+          DEFAULT: '#E8E5DF',
+          dark: '#D1CEC7',
+        },
+        // Text colors
         text: {
-          DEFAULT: '#111827',
-          muted: '#6B7280',
-          light: '#9CA3AF',
+          DEFAULT: '#1A1A1A',
+          secondary: '#4A4A4A',
+          muted: '#7A7A7A',
+        },
+        // Legacy support
+        dark: '#0a2e0d',
+        secondary: {
+          DEFAULT: '#F57F17',
+          50: '#FFF8E1',
+          100: '#FFECB3',
+          200: '#FFE082',
+          300: '#FFD54F',
+          400: '#FFCA28',
+          500: '#FFC107',
+          600: '#FFB300',
+          700: '#FFA000',
+          800: '#FF8F00',
+          900: '#F57F17',
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-source-serif)', 'Georgia', 'Cambria', 'serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'Cambria', 'serif'],
+      },
+      animation: {
+        'ticker-scroll': 'ticker-scroll 40s linear infinite',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        'ticker-scroll': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
       },
     },
   },

@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import {
@@ -11,7 +12,11 @@ import VendorCard from '@/components/VendorCard';
 import ProductCard from '@/components/ProductCard';
 import ServiceCard from '@/components/ServiceCard';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Ensure no static caching
+function ensureNoCache() { try { noStore(); } catch {} }
 
 export const metadata: Metadata = {
   title: 'Lokalni Marketplace - Gornji Milanovac',
@@ -42,6 +47,7 @@ const categories: CategoryInfo[] = [
 ];
 
 async function getMarketplaceData() {
+  ensureNoCache();
   try {
     const [stats, featuredVendors, latestProducts, latestServices] = await Promise.all([
       getMarketplaceStats(),

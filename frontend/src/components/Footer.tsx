@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const kategorije = [
-  { name: 'Vesti', href: '/vesti' },
+  { name: 'Sve Vesti', href: '/vesti' },
   { name: 'Sport', href: '/vesti?kategorija=sport' },
   { name: 'Kultura', href: '/vesti?kategorija=kultura' },
   { name: 'Ekonomija', href: '/vesti?kategorija=ekonomija' },
@@ -14,8 +14,15 @@ const kategorije = [
 const portal = [
   { name: 'O Gradu', href: '/o-gradu' },
   { name: 'Oglasi', href: '/oglasi' },
-  { name: 'Važni Telefoni', href: '/o-gradu#vazni-telefoni' },
+  { name: 'Marketplace', href: '/marketplace' },
   { name: 'Kontakt', href: '/kontakt' },
+];
+
+const korisniLinkovi = [
+  { name: 'Opština GM', href: 'https://www.gornjimilanovac.rs' },
+  { name: 'Dom zdravlja', href: 'https://dz-gornjimilanovac.rs' },
+  { name: 'MUP', href: 'https://www.mup.gov.rs' },
+  { name: 'Turistička org.', href: 'https://www.togm.rs' },
 ];
 
 const socialLinks = [
@@ -61,20 +68,27 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-dark text-gray-300">
-      <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {/* Column 1: Logo & Description */}
-          <div>
-            <Link href="/" className="inline-block mb-4">
-              <span className="text-xl font-bold text-white font-serif">
+    <footer className="bg-primary-dark text-white">
+      {/* Top green line */}
+      <div className="h-1 bg-primary" />
+
+      <div className="container py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">
+          {/* Column 1: Logo & Description (wider) */}
+          <div className="lg:col-span-2">
+            <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-serif font-bold text-lg">
+                GM
+              </div>
+              <span className="text-xl font-serif font-bold text-white">
                 Gornji Milanovac
               </span>
             </Link>
-            <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-              Vaš izvor najnovijih vesti iz Gornjeg Milanovca i Takovskog kraja.
-              Informacije o lokalnim dešavanjima, kulturi, sportu i privredi.
+
+            <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-sm">
+              Gornji Milanovac Portal je nezavisni digitalni informativni portal posvećen lokalnim vestima, događajima i životu u Takovskom kraju. Pratimo sve što je važno za našu zajednicu.
             </p>
+
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
                 <a
@@ -82,7 +96,7 @@ export default function Footer() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:bg-primary hover:text-white transition-all"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/10 text-white/80 hover:bg-primary hover:text-white transition-all"
                   aria-label={social.name}
                 >
                   {social.icon}
@@ -96,12 +110,12 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wide">
               Kategorije
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-2.5">
               {kategorije.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-secondary transition-colors text-sm"
+                    className="text-white/70 hover:text-accent-light transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -115,88 +129,87 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wide">
               Portal
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-2.5">
               {portal.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-secondary transition-colors text-sm"
+                    className="text-white/70 hover:text-accent-light transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
+
+            <h4 className="text-white font-semibold mb-4 mt-6 text-sm uppercase tracking-wide">
+              Korisni linkovi
+            </h4>
+            <ul className="space-y-2.5">
+              {korisniLinkovi.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/70 hover:text-accent-light transition-colors text-sm inline-flex items-center gap-1"
+                  >
+                    {link.name}
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Column 4: Info & Newsletter */}
+          {/* Column 4: Newsletter */}
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wide">
               Newsletter
             </h4>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-white/70 text-sm mb-4">
               Prijavite se za najnovije vesti direktno u vaš inbox.
             </p>
 
             {subscribed ? (
-              <div className="bg-primary/20 border border-primary/30 rounded-lg p-3">
-                <p className="text-primary-200 text-sm">
+              <div className="bg-primary/30 border border-primary/50 rounded-lg p-4">
+                <p className="text-white/90 text-sm">
                   Hvala na prijavi! Uskoro ćete primati naše vesti.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex">
+              <form onSubmit={handleSubscribe} className="space-y-3">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Vaš email"
                   required
-                  className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-l-md text-white text-sm placeholder-gray-500 focus:outline-none focus:border-primary"
+                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-secondary text-dark font-medium text-sm rounded-r-md hover:bg-secondary-700 transition-colors"
+                  className="w-full px-4 py-2.5 bg-primary text-white font-medium text-sm rounded-lg hover:bg-primary-light transition-colors"
                 >
-                  Prijavi
+                  Prijavi se
                 </button>
               </form>
             )}
-
-            <div className="mt-6 pt-4 border-t border-gray-800">
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link
-                    href="/politika-privatnosti"
-                    className="text-gray-500 hover:text-gray-300 transition-colors"
-                  >
-                    Politika privatnosti
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="/rss"
-                    className="text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z" />
-                    </svg>
-                    RSS
-                  </a>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
-        <div className="container py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-            <p>&copy; 2026 Gornji Milanovac Portal. Sva prava zadržana.</p>
-            <p className="text-gray-600">
-              Izrađeno sa <span className="text-accent">&#9829;</span> u Šumadiji
+      <div className="border-t border-white/10">
+        <div className="container py-5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+            <p className="text-white/60">
+              &copy; 2026 Gornji Milanovac Portal. Sva prava zadržana.
+            </p>
+            <p className="text-white/40 flex items-center gap-1.5">
+              Made with <span className="text-red-light">&#9829;</span> za Gornji Milanovac
             </p>
           </div>
         </div>

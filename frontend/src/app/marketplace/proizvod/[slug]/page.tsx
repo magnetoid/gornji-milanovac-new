@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
@@ -13,7 +14,11 @@ import {
 import ProductCard from '@/components/ProductCard';
 import ContactVendorForm from '@/components/ContactVendorForm';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Ensure no static caching
+function ensureNoCache() { try { noStore(); } catch {} }
 
 interface PageProps {
   params: Promise<{ slug: string }>;

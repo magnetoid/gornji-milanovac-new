@@ -3,15 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const navigation = [
+const mainNavigation = [
   { name: 'Vesti', href: '/vesti' },
   { name: 'Sport', href: '/vesti?kategorija=sport' },
   { name: 'Kultura', href: '/vesti?kategorija=kultura' },
   { name: 'Ekonomija', href: '/vesti?kategorija=ekonomija' },
-  { name: 'Marketplace', href: '/marketplace' },
+  { name: 'Hronika', href: '/vesti?kategorija=hronika' },
   { name: 'Oglasi', href: '/oglasi' },
+  { name: 'Marketplace', href: '/marketplace' },
   { name: 'O Gradu', href: '/o-gradu' },
-  { name: 'Kontakt', href: '/kontakt' },
 ];
 
 const socialLinks = [
@@ -69,7 +69,7 @@ export default function Header() {
     setCurrentDate(getCurrentDate());
 
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -77,145 +77,162 @@ export default function Header() {
   }, []);
 
   return (
-    <header className={`sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-lg' : ''}`}>
-      {/* Top Bar */}
-      <div className="bg-dark text-white">
+    <header className="sticky top-0 z-50">
+      {/* Tier 1 - Top Bar */}
+      <div className="bg-primary text-white">
         <div className="container">
           <div className="flex items-center justify-between h-8 text-xs">
+            {/* Left - Date */}
             <div className="flex items-center gap-4">
-              <span className="hidden sm:inline text-text-light">{currentDate}</span>
-              <a
-                href="https://www.yr.no/en/forecast/daily-table/2-789128/Serbia/Central%20Serbia/Moravica/Gornji%20Milanovac"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-text-light hover:text-white transition-colors"
-              >
+              <span className="hidden sm:flex items-center gap-1.5 text-white/80">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span>Vreme</span>
-              </a>
+                {currentDate}
+              </span>
             </div>
 
-            <div className="flex items-center gap-3">
-              {/* Language Switcher */}
-              <div className="flex items-center gap-1 mr-2 text-xs">
-                <span className="text-white font-medium">SR</span>
-                <span className="text-text-light">|</span>
-                <span className="text-text-light cursor-not-allowed" title="Coming soon">EN</span>
-              </div>
+            {/* Center - Weather */}
+            <a
+              href="https://www.yr.no/en/forecast/daily-table/2-789128/Serbia/Central%20Serbia/Moravica/Gornji%20Milanovac"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center gap-1.5 text-white/80 hover:text-white transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              </svg>
+              <span>12°C</span>
+            </a>
 
+            {/* Right - Social + Lang */}
+            <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-text-light hover:text-white transition-colors"
+                  className="text-white/70 hover:text-white transition-colors"
                   aria-label={social.name}
                 >
                   {social.icon}
                 </a>
               ))}
+              <span className="w-px h-4 bg-white/30 mx-1" />
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="text-white font-medium">SR</span>
+                <span className="text-white/50">|</span>
+                <span className="text-white/50 cursor-not-allowed" title="Coming soon">EN</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
-      <div className="bg-primary">
+      {/* Tier 2 - Brand Bar */}
+      <div className={`bg-white border-b border-border transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'}`}>
         <div className="container">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <Link href="/" className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold text-white font-serif">
-                Gornji Milanovac
-              </span>
-              <span className="text-xs text-primary-100 hidden sm:block">
-                Digitalni Portal Šumadije
-              </span>
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-lg flex items-center justify-center text-white font-serif font-bold text-lg md:text-xl shadow-sm group-hover:bg-primary-light transition-colors">
+                GM
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg md:text-xl font-serif font-bold text-text group-hover:text-primary transition-colors">
+                  Gornji Milanovac
+                </span>
+                <span className="text-xs text-text-muted hidden sm:block">
+                  Digitalni Portal Šumadije
+                </span>
+              </div>
             </Link>
 
-            <button
-              type="button"
-              className="p-2 text-white hover:bg-primary-dark rounded-lg transition-colors"
-              aria-label="Pretraga"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+            {/* Search + Mobile Menu */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="p-2 text-text-secondary hover:text-primary hover:bg-surface-muted rounded-lg transition-all"
+                aria-label="Pretraga"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                className="md:hidden p-2 text-text-secondary hover:text-primary hover:bg-surface-muted rounded-lg transition-all"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Bar */}
-      <nav className="bg-white border-b border-border shadow-sm">
+      {/* Tier 3 - Navigation Bar */}
+      <nav className={`bg-white border-b border-border transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
         <div className="container">
-          <div className="flex items-center justify-between h-12">
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
-              {navigation.map((item) => (
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center justify-between h-12">
+            <div className="flex items-center -ml-3">
+              {mainNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="px-4 py-3 text-sm font-medium text-text hover:text-primary border-b-2 border-transparent hover:border-primary transition-all"
+                  className="px-3 py-3 text-sm font-medium text-text-secondary hover:text-primary border-b-2 border-transparent hover:border-primary transition-all"
                 >
                   {item.name}
                 </Link>
               ))}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              type="button"
-              className="md:hidden flex items-center gap-2 text-text p-2 -ml-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+            <a
+              href="https://www.gornjimilanovac.rs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-text-muted hover:text-primary transition-colors"
             >
-              {mobileMenuOpen ? (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-              <span className="text-sm font-medium">Meni</span>
-            </button>
-
-            {/* Quick Links (Desktop) */}
-            <div className="hidden md:flex items-center gap-4 text-sm">
-              <a
-                href="https://www.gornjimilanovac.rs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-text-muted hover:text-primary transition-colors"
-              >
-                Opština GM
-              </a>
-            </div>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Opština GM
+            </a>
           </div>
+        </div>
 
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-border py-2 -mx-4 px-4">
-              {navigation.map((item) => (
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-border">
+            <div className="container py-4 space-y-1">
+              {mainNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="block py-3 px-2 text-text hover:text-primary hover:bg-surface-alt rounded-md transition-colors font-medium"
+                  className="block py-3 px-4 text-text-secondary hover:text-primary hover:bg-surface-muted rounded-lg transition-colors font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="mt-3 pt-3 border-t border-border">
+              <div className="pt-4 mt-4 border-t border-border">
                 <a
                   href="https://www.gornjimilanovac.rs"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 py-2 px-2 text-text-muted hover:text-primary"
+                  className="flex items-center gap-2 py-3 px-4 text-text-muted hover:text-primary transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -224,8 +241,8 @@ export default function Header() {
                 </a>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </nav>
     </header>
   );

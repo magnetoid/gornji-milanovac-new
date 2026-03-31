@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -16,7 +17,11 @@ import VendorCard from '@/components/VendorCard';
 import ProductCard from '@/components/ProductCard';
 import ServiceCard from '@/components/ServiceCard';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Ensure no static caching
+function ensureNoCache() { try { noStore(); } catch {} }
 
 interface CategoryInfo {
   name: string;

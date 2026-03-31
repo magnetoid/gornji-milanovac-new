@@ -1,19 +1,19 @@
 import type { Metadata } from 'next';
-import { Inter, Source_Serif_4 } from 'next/font/google';
+import { Playfair_Display, Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-const inter = Inter({
+const playfair = Playfair_Display({
   subsets: ['latin', 'latin-ext'],
-  variable: '--font-inter',
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-serif',
   display: 'swap',
 });
 
-const sourceSerif = Source_Serif_4({
+const inter = Inter({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '600', '700'],
-  variable: '--font-source-serif',
+  variable: '--font-sans',
   display: 'swap',
 });
 
@@ -67,14 +67,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="sr" className={`${inter.variable} ${sourceSerif.variable}`}>
+    <html lang="sr" className={`${inter.variable} ${playfair.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#1B5E20" />
       </head>
       <body className={inter.className}>
-        <div className="min-h-screen flex flex-col bg-surface-alt">
+        <div className="min-h-screen flex flex-col bg-surface-warm">
           <Header />
           <main className="flex-grow">
             {children}

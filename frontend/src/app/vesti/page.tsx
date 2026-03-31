@@ -1,9 +1,14 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { getPosts, getCategories, Category } from '@/lib/api';
 import NewsCard from '@/components/NewsCard';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Ensure no static caching
+function ensureNoCache() { try { noStore(); } catch {} }
 
 interface PageProps {
   searchParams: { kategorija?: string; page?: string };

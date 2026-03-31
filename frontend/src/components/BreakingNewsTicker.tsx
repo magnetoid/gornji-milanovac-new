@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Post } from '@/lib/api';
 
@@ -10,86 +10,68 @@ interface BreakingNewsTickerProps {
 
 export default function BreakingNewsTicker({ posts }: BreakingNewsTickerProps) {
   const [isPaused, setIsPaused] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!scrollRef.current || posts.length === 0) return;
+  if (!posts || posts.length === 0) return null;
 
-    const scrollElement = scrollRef.current;
-    let animationId: number;
-    let startTime: number;
-    const duration = 30000; // 30 seconds for full scroll
-    const scrollWidth = scrollElement.scrollWidth / 2;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-
-      if (!isPaused) {
-        const elapsed = timestamp - startTime;
-        const progress = (elapsed % duration) / duration;
-        scrollElement.scrollLeft = progress * scrollWidth;
-      }
-
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animationId = requestAnimationFrame(animate);
-
-    return () => cancelAnimationFrame(animationId);
-  }, [posts, isPaused]);
-
-  if (posts.length === 0) return null;
-
-  const separator = (
-    <span className="mx-4 text-white/50 font-bold">&#183;</span>
-  );
+  // Limit to max 7 items
+  const tickerPosts = posts.slice(0, 7);
 
   return (
     <div
-      className="breaking-ticker py-2"
+      className="bg-white border-b border-border"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="container">
-        <div className="flex items-center gap-4">
-          <span className="breaking-ticker-label flex items-center gap-1.5">
+        <div className="flex items-center gap-4 py-2.5">
+          {/* Label */}
+          <div className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 bg-red rounded-full">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
             </span>
-            NAJVAŽNIJE
-          </span>
+            <span className="text-white text-xs font-bold uppercase tracking-wide">
+              Najvažnije
+            </span>
+          </div>
 
-          <div
-            ref={scrollRef}
-            className="breaking-ticker-content overflow-hidden"
-          >
-            <div className="flex whitespace-nowrap">
-              {/* First set of headlines */}
-              {posts.map((post, index) => (
+          {/* Ticker Content */}
+          <div className="flex-1 overflow-hidden">
+            <div
+              className={`flex whitespace-nowrap ${isPaused ? '' : 'animate-ticker-scroll'}`}
+              style={{
+                animationPlayState: isPaused ? 'paused' : 'running',
+              }}
+            >
+              {/* First set */}
+              {tickerPosts.map((post, index) => (
                 <span key={`first-${post.id}`} className="inline-flex items-center">
                   <Link
                     href={`/vesti/${post.slug}`}
-                    className="text-white hover:text-secondary font-medium transition-colors"
+                    className="text-text hover:text-primary font-medium text-sm transition-colors"
                   >
                     {post.title}
                   </Link>
-                  {index < posts.length - 1 && separator}
+                  {index < tickerPosts.length - 1 && (
+                    <span className="mx-4 text-text-muted font-bold">//</span>
+                  )}
                 </span>
               ))}
 
-              {separator}
+              <span className="mx-4 text-text-muted font-bold">//</span>
 
               {/* Duplicate for seamless loop */}
-              {posts.map((post, index) => (
+              {tickerPosts.map((post, index) => (
                 <span key={`second-${post.id}`} className="inline-flex items-center">
                   <Link
                     href={`/vesti/${post.slug}`}
-                    className="text-white hover:text-secondary font-medium transition-colors"
+                    className="text-text hover:text-primary font-medium text-sm transition-colors"
                   >
                     {post.title}
                   </Link>
-                  {index < posts.length - 1 && separator}
+                  {index < tickerPosts.length - 1 && (
+                    <span className="mx-4 text-text-muted font-bold">//</span>
+                  )}
                 </span>
               ))}
             </div>

@@ -4,7 +4,8 @@ import { Post, Category, getAssetUrl, formatDate } from '@/lib/api';
 
 interface NewsCardProps {
   post: Post;
-  variant?: 'featured' | 'medium' | 'compact';
+  variant?: 'hero' | 'feature' | 'list' | 'mini';
+  index?: number;
 }
 
 function getCategoryBadgeClass(slug: string | undefined): string {
@@ -27,77 +28,78 @@ function getCategoryBadgeClass(slug: string | undefined): string {
   }
 }
 
-export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
+export default function NewsCard({ post, variant = 'feature', index }: NewsCardProps) {
   const category = post.category as Category | null;
   const categorySlug = category?.slug;
+  const imageUrl = getAssetUrl(post.featured_image);
 
-  // Featured variant - large hero card
-  if (variant === 'featured') {
-    const imageUrl = getAssetUrl(post.featured_image);
-
+  // HERO variant - the BIG featured story
+  if (variant === 'hero') {
     return (
-      <article className="news-card group relative bg-dark rounded-xl overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-5">
-          {/* Image Section - 60% on desktop */}
-          <div className="lg:col-span-3 relative h-64 sm:h-80 lg:h-[400px]">
+      <article className="group relative rounded-xl overflow-hidden bg-primary-dark">
+        <Link href={`/vesti/${post.slug}`} className="block">
+          <div className="relative aspect-[16/9] md:aspect-[21/9]">
             {imageUrl ? (
               <Image
                 src={imageUrl}
                 alt={post.title}
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-                <svg className="w-20 h-20 text-primary-200 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                </svg>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-r from-dark/60 via-dark/30 to-transparent lg:hidden" />
-          </div>
-
-          {/* Content Section - 40% on desktop */}
-          <div className="lg:col-span-2 p-6 sm:p-8 lg:p-10 flex flex-col justify-center bg-dark">
-            {category && (
-              <span className={`${getCategoryBadgeClass(categorySlug)} mb-4 self-start`}>
-                {category.name}
-              </span>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark" />
             )}
 
-            <Link href={`/vesti/${post.slug}`}>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-white hover:text-secondary transition-colors leading-tight mb-4">
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+            {/* Content */}
+            <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10">
+              {category && (
+                <span className={`${getCategoryBadgeClass(categorySlug)} mb-4 self-start`}>
+                  {category.name}
+                </span>
+              )}
+
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-tight mb-4 text-shadow-lg">
                 {post.title}
               </h2>
-            </Link>
 
-            {post.excerpt && (
-              <p className="text-gray-300 line-clamp-3 mb-6 text-base lg:text-lg">
-                {post.excerpt}
-              </p>
-            )}
-
-            <div className="flex items-center gap-4 text-sm text-gray-400">
-              {post.author && (
-                <span className="font-medium text-gray-300">{post.author}</span>
+              {post.excerpt && (
+                <p className="text-white/80 text-base md:text-lg line-clamp-2 mb-4 max-w-3xl">
+                  {post.excerpt}
+                </p>
               )}
-              <time>{formatDate(post.published_at)}</time>
+
+              <div className="flex items-center gap-3 text-sm text-white/70">
+                {post.author && (
+                  <>
+                    <span className="font-medium text-white/90">{(post.author as any).name || post.author}</span>
+                    <span className="w-1 h-1 rounded-full bg-white/50" />
+                  </>
+                )}
+                <time>{formatDate(post.published_at)}</time>
+                {post.source_name && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-white/50" />
+                    <span className="px-2 py-0.5 bg-white/20 rounded text-xs">{post.source_name}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
       </article>
     );
   }
 
-  // Compact variant - sidebar/list style
-  if (variant === 'compact') {
-    const imageUrl = getAssetUrl(post.featured_image);
-
+  // LIST variant - compact horizontal layout
+  if (variant === 'list') {
     return (
-      <article className="group flex gap-3">
+      <article className="group flex gap-4">
         <Link href={`/vesti/${post.slug}`} className="flex-shrink-0">
-          <div className="relative w-20 h-16 sm:w-24 sm:h-[72px] rounded-md overflow-hidden">
+          <div className="relative w-24 h-16 md:w-28 md:h-20 rounded-lg overflow-hidden bg-surface-muted">
             {imageUrl ? (
               <Image
                 src={imageUrl}
@@ -106,15 +108,43 @@ export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                <svg className="w-6 h-6 text-primary/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
             )}
           </div>
         </Link>
 
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          {category && (
+            <span className={`${getCategoryBadgeClass(categorySlug)} text-[10px] px-1.5 py-0.5 mb-1.5 self-start`}>
+              {category.name}
+            </span>
+          )}
+          <Link href={`/vesti/${post.slug}`}>
+            <h3 className="font-medium text-text text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+              {post.title}
+            </h3>
+          </Link>
+          <time className="text-xs text-text-muted mt-1.5">
+            {formatDate(post.published_at)}
+          </time>
+        </div>
+      </article>
+    );
+  }
+
+  // MINI variant - numbered list for sidebar
+  if (variant === 'mini') {
+    return (
+      <article className="group flex gap-3">
+        {typeof index === 'number' && (
+          <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface-muted flex items-center justify-center text-lg font-serif font-bold text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+            {index + 1}
+          </span>
+        )}
         <div className="flex-1 min-w-0">
           <Link href={`/vesti/${post.slug}`}>
             <h3 className="font-medium text-text text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
@@ -129,13 +159,11 @@ export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
     );
   }
 
-  // Medium variant (default) - grid cards
-  const imageUrl = getAssetUrl(post.featured_image);
-
+  // FEATURE variant (default) - standard card
   return (
-    <article className="news-card group bg-white border border-border rounded-lg overflow-hidden">
+    <article className="news-card group">
       <Link href={`/vesti/${post.slug}`} className="block">
-        <div className="news-card-image relative h-48 sm:h-52">
+        <div className="news-card-image relative aspect-video">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -144,8 +172,8 @@ export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+              <svg className="w-12 h-12 text-primary/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -172,10 +200,10 @@ export default function NewsCard({ post, variant = 'medium' }: NewsCardProps) {
           </p>
         )}
 
-        <div className="flex items-center justify-between text-xs text-text-light">
+        <div className="flex items-center justify-between text-xs text-text-muted">
           <time>{formatDate(post.published_at)}</time>
           {post.source_name && (
-            <span className="px-2 py-0.5 bg-surface-alt rounded text-text-muted">
+            <span className="px-2 py-0.5 bg-surface-muted rounded text-text-muted">
               {post.source_name}
             </span>
           )}

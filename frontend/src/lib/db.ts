@@ -277,3 +277,15 @@ export interface DbSetting {
   label: string | null;
   group_name: string;
 }
+
+export interface DbEvent {
+  id: string;
+  created_at: Date;
+  updated_at: Date;
+  status: 'draft' | 'published' | 'cancelled';
+  title: string;
+  starts_at: Date;
+  location: string | null;
+  description: string | null;
+  url: string | null;
+}

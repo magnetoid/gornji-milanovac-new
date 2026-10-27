@@ -105,7 +105,7 @@ export default async function PostPage({ params }: PageProps) {
 
       <article className="bg-surface-warm min-h-screen">
         {/* Article Header */}
-        <div className="bg-white border-b border-border">
+        <div className="bg-paper-card border-b border-border">
           <div className="container py-8">
             {/* Breadcrumb */}
             <nav className="mb-6">
@@ -191,7 +191,7 @@ export default async function PostPage({ params }: PageProps) {
         {/* Featured Image - Full Width */}
         {imageUrl && (
           <div className="container py-6">
-            <figure className="rounded-xl overflow-hidden bg-white border border-border shadow-sm">
+            <figure className="rounded-xl overflow-hidden bg-paper-card border border-border shadow-sm">
               <div className="relative aspect-video md:aspect-[21/9]">
                 <Image
                   src={imageUrl}
@@ -211,7 +211,7 @@ export default async function PostPage({ params }: PageProps) {
             {/* Article Body */}
             <div className="lg:col-span-2">
               {/* Article Content */}
-              <div className="bg-white rounded-xl border border-border p-6 sm:p-8 md:p-10 shadow-sm">
+              <div className="bg-paper-card rounded-xl border border-border p-6 sm:p-8 md:p-10 shadow-sm">
                 <div
                   className="prose max-w-none"
                   dangerouslySetInnerHTML={{ __html: post.content || '' }}

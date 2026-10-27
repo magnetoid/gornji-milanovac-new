@@ -27,7 +27,7 @@ export default function VendorCard({ vendor, variant = 'grid' }: VendorCardProps
   // Featured variant - wide card with cover image
   if (variant === 'featured') {
     return (
-      <article className="group relative bg-white border border-border rounded-xl overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg">
+      <article className="group relative bg-paper-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg">
         <Link href={`/marketplace/vendor/${vendor.slug}`} className="block">
           {/* Cover Image */}
           <div className="relative h-40 sm:h-48">
@@ -45,7 +45,7 @@ export default function VendorCard({ vendor, variant = 'grid' }: VendorCardProps
 
             {/* Logo overlay */}
             <div className="absolute bottom-4 left-4 flex items-end gap-4">
-              <div className="w-16 h-16 rounded-xl bg-white shadow-lg overflow-hidden flex-shrink-0">
+              <div className="w-16 h-16 rounded-xl bg-paper-card shadow-lg overflow-hidden flex-shrink-0">
                 {logoUrl ? (
                   <Image
                     src={logoUrl}
@@ -121,12 +121,12 @@ export default function VendorCard({ vendor, variant = 'grid' }: VendorCardProps
 
   // Grid variant (default) - square card
   return (
-    <article className="group bg-white border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-md">
+    <article className="group bg-paper-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-md">
       <Link href={`/marketplace/vendor/${vendor.slug}`} className="block">
         {/* Logo/Header area */}
         <div className="relative h-32 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
           {logoUrl ? (
-            <div className="w-20 h-20 rounded-xl overflow-hidden shadow-md bg-white">
+            <div className="w-20 h-20 rounded-xl overflow-hidden shadow-md bg-paper-card">
               <Image
                 src={logoUrl}
                 alt={vendor.name}
@@ -136,7 +136,7 @@ export default function VendorCard({ vendor, variant = 'grid' }: VendorCardProps
               />
             </div>
           ) : (
-            <div className="w-20 h-20 rounded-xl bg-white shadow-md flex items-center justify-center">
+            <div className="w-20 h-20 rounded-xl bg-paper-card shadow-md flex items-center justify-center">
               <span className="text-3xl font-bold text-primary">
                 {vendor.name.charAt(0)}
               </span>

@@ -81,7 +81,7 @@ export default async function VendorPage({ params }: PageProps) {
         <div className="relative -mt-16 md:-mt-20 mb-8">
           <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
             {/* Logo */}
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-white shadow-lg overflow-hidden border-4 border-white flex-shrink-0">
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-paper-card shadow-lg overflow-hidden border-4 border-white flex-shrink-0">
               {logoUrl ? (
                 <Image
                   src={logoUrl}
@@ -142,7 +142,7 @@ export default async function VendorPage({ params }: PageProps) {
           <div className="lg:col-span-2">
             {/* Description */}
             {vendor.description && (
-              <div className="bg-white border border-border rounded-lg p-6 mb-8">
+              <div className="bg-paper-card border border-border rounded-lg p-6 mb-8">
                 <h2 className="text-lg font-bold text-text mb-4">O nama</h2>
                 <div
                   className="prose prose-sm max-w-none text-text-muted"
@@ -187,7 +187,7 @@ export default async function VendorPage({ params }: PageProps) {
 
           {/* Sidebar - Contact Info */}
           <aside className="lg:col-span-1">
-            <div className="bg-white border border-border rounded-lg p-6 sticky top-24">
+            <div className="bg-paper-card border border-border rounded-lg p-6 sticky top-24">
               <h3 className="text-lg font-bold text-text mb-4">Kontakt</h3>
 
               <div className="space-y-4">

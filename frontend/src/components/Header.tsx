@@ -2,248 +2,138 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { formatLongDate } from '@/lib/format';
+import { weatherUrl } from '@/lib/site';
 
 const mainNavigation = [
   { name: 'Vesti', href: '/vesti' },
-  { name: 'Sport', href: '/vesti?kategorija=sport' },
-  { name: 'Kultura', href: '/vesti?kategorija=kultura' },
-  { name: 'Ekonomija', href: '/vesti?kategorija=ekonomija' },
-  { name: 'Hronika', href: '/vesti?kategorija=hronika' },
+  { name: 'Zajednica', href: '/#zajednica' },
   { name: 'Oglasi', href: '/oglasi' },
-  { name: 'Marketplace', href: '/marketplace' },
-  { name: 'O Gradu', href: '/o-gradu' },
+  { name: 'Prodavnica', href: '/marketplace' },
+  { name: 'Imenik', href: '/o-gradu#vazni-telefoni' },
+  { name: 'O gradu', href: '/o-gradu' },
 ];
 
-const socialLinks = [
-  {
-    name: 'Facebook',
-    href: 'https://facebook.com/gornjimilanovac',
-    icon: (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M18.77 7.46H14.5v-1.9c0-.9.6-1.1 1-1.1h3V.5h-4.33C10.24.5 9.5 3.44 9.5 5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4z" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Instagram',
-    href: 'https://instagram.com/gornjimilanovac',
-    icon: (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Telegram',
-    href: 'https://t.me/gornjimilanovac',
-    icon: (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-      </svg>
-    ),
-  },
+const utilityLinks = [
+  { name: 'Važni telefoni', href: '/o-gradu#vazni-telefoni' },
+  { name: 'Kontakt', href: '/kontakt' },
+  { name: 'Prijava', href: '/admin/login' },
 ];
-
-function getCurrentDate(): string {
-  const days = ['Nedelja', 'Ponedeljak', 'Utorak', 'Sreda', 'Četvrtak', 'Petak', 'Subota'];
-  const months = [
-    'januar', 'februar', 'mart', 'april', 'maj', 'jun',
-    'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'
-  ];
-
-  const now = new Date();
-  const dayName = days[now.getDay()];
-  const day = now.getDate();
-  const month = months[now.getMonth()];
-  const year = now.getFullYear();
-
-  return `${dayName}, ${day}. ${month} ${year}.`;
-}
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
   useEffect(() => {
-    setCurrentDate(getCurrentDate());
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Set on the client so the date never mismatches the server render
+    setCurrentDate(formatLongDate(new Date()));
   }, []);
 
   return (
-    <header className="sticky top-0 z-50">
-      {/* Tier 1 - Top Bar */}
-      <div className="bg-primary text-white">
-        <div className="container">
-          <div className="flex items-center justify-between h-8 text-xs">
-            {/* Left - Date */}
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:flex items-center gap-1.5 text-white/80">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                {currentDate}
-              </span>
-            </div>
-
-            {/* Center - Weather */}
-            <a
-              href="https://www.yr.no/en/forecast/daily-table/2-789128/Serbia/Central%20Serbia/Moravica/Gornji%20Milanovac"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:flex items-center gap-1.5 text-white/80 hover:text-white transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-              </svg>
-              <span>12°C</span>
-            </a>
-
-            {/* Right - Social + Lang */}
-            <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/70 hover:text-white transition-colors"
-                  aria-label={social.name}
-                >
-                  {social.icon}
-                </a>
-              ))}
-              <span className="w-px h-4 bg-white/30 mx-1" />
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-white font-medium">SR</span>
-                <span className="text-white/50">|</span>
-                <span className="text-white/50 cursor-not-allowed" title="Coming soon">EN</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tier 2 - Brand Bar */}
-      <div className={`bg-white border-b border-border transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'}`}>
-        <div className="container">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-lg flex items-center justify-center text-white font-serif font-bold text-lg md:text-xl shadow-sm group-hover:bg-primary-light transition-colors">
-                GM
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg md:text-xl font-serif font-bold text-text group-hover:text-primary transition-colors">
-                  Gornji Milanovac
-                </span>
-                <span className="text-xs text-text-muted hidden sm:block">
-                  Digitalni Portal Šumadije
-                </span>
-              </div>
+    <>
+      {/* Utility bar */}
+      <div className="border-b border-border text-[13px] text-text-muted">
+        <div className="container flex flex-wrap items-center gap-x-5 gap-y-1 py-2">
+          <span className="min-h-[1.25em]">{currentDate}</span>
+          <a
+            href={weatherUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1.5 text-text-muted"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            Vremenska prognoza
+          </a>
+          <span className="flex-1" />
+          {utilityLinks.map((link) => (
+            <Link key={link.name} href={link.href} className="hidden sm:inline text-text-muted">
+              {link.name}
             </Link>
-
-            {/* Search + Mobile Menu */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="p-2 text-text-secondary hover:text-primary hover:bg-surface-muted rounded-lg transition-all"
-                aria-label="Pretraga"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-
-              <button
-                type="button"
-                className="md:hidden p-2 text-text-secondary hover:text-primary hover:bg-surface-muted rounded-lg transition-all"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                {mobileMenuOpen ? (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                ) : (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Tier 3 - Navigation Bar */}
-      <nav className={`bg-white border-b border-border transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
-        <div className="container">
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center justify-between h-12">
-            <div className="flex items-center -ml-3">
-              {mainNavigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="px-3 py-3 text-sm font-medium text-text-secondary hover:text-primary border-b-2 border-transparent hover:border-primary transition-all"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
+      {/* Masthead */}
+      <header className="sticky top-0 z-50 bg-paper border-b border-ink">
+        <div className="container flex items-center gap-8 py-[18px]">
+          <Link href="/" className="flex flex-col leading-none text-ink">
+            <span className="font-serif text-[26px] sm:text-[30px] font-semibold tracking-[-0.02em]">
+              Gornji Milanovac
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-muted mt-1">
+              Grad · Zajednica · Pijaca
+            </span>
+          </Link>
 
-            <a
-              href="https://www.gornjimilanovac.rs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-text-muted hover:text-primary transition-colors"
+          <nav className="hidden lg:flex flex-1 flex-wrap gap-[22px] text-[15px] font-medium">
+            {mainNavigation.map((item) => (
+              <Link key={item.name} href={item.href} className="text-ink">
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2.5 ml-auto lg:ml-0">
+            <Link href="/oglasi/novi" className="btn-primary hidden sm:inline-flex">
+              Postavi oglas
+            </Link>
+            <button
+              type="button"
+              className="lg:hidden p-2 -mr-2 text-ink"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Zatvori meni' : 'Otvori meni'}
+              aria-expanded={mobileMenuOpen}
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-              Opština GM
-            </a>
+              {mobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-border">
-            <div className="container py-4 space-y-1">
+          <div className="lg:hidden border-t border-border bg-paper">
+            <nav className="container py-3 flex flex-col">
               {mainNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="block py-3 px-4 text-text-secondary hover:text-primary hover:bg-surface-muted rounded-lg transition-colors font-medium"
+                  className="py-3 border-b border-border text-[17px] font-medium text-ink"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="pt-4 mt-4 border-t border-border">
-                <a
-                  href="https://www.gornjimilanovac.rs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 py-3 px-4 text-text-muted hover:text-primary transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  Opština Gornji Milanovac
-                </a>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 pt-4 pb-2 text-sm text-text-muted">
+                {utilityLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="text-text-muted"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
               </div>
-            </div>
+              <Link
+                href="/oglasi/novi"
+                className="btn-primary mt-2 sm:hidden"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Postavi oglas
+              </Link>
+            </nav>
           </div>
         )}
-      </nav>
-    </header>
+      </header>
+    </>
   );
 }

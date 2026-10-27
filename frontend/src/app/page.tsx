@@ -1,11 +1,22 @@
 import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { getPosts, getCategories, getListings, getVendors, Post, Category, Vendor, getMarketplaceStats } from '@/lib/api';
-import NewsCard from '@/components/NewsCard';
-import ListingCard from '@/components/ListingCard';
-import VendorCard from '@/components/VendorCard';
-import BreakingNewsTicker from '@/components/BreakingNewsTicker';
+import {
+  getPosts,
+  getListings,
+  getProducts,
+  getUpcomingEvents,
+  getSettings,
+  Post,
+  Listing,
+  Product,
+  CommunityEvent,
+} from '@/lib/api';
+import { formatRelativeTime, formatEventDate } from '@/lib/format';
+import { importantPhones, cityStats, telHref, safeHref } from '@/lib/site';
+import HomeNews from '@/components/HomeNews';
+import HomeListings from '@/components/HomeListings';
+import ProductCard from '@/components/ProductCard';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -14,7 +25,7 @@ function ensureNoCache() { try { noStore(); } catch {} }
 
 export const metadata: Metadata = {
   title: 'Gornji Milanovac - Digitalni Portal Šumadije',
-  description: 'Najnovije vesti iz Gornjeg Milanovca i Takovskog kraja. Sport, kultura, ekonomija, hronika, mali oglasi i sve iz Šumadije.',
+  description: 'Najnovije vesti iz Gornjeg Milanovca i Takovskog kraja, događaji, mali oglasi i proizvodi lokalnih domaćinstava.',
   openGraph: {
     title: 'Gornji Milanovac - Digitalni Portal Šumadije',
     description: 'Najnovije vesti iz Gornjeg Milanovca i Takovskog kraja.',
@@ -22,331 +33,199 @@ export const metadata: Metadata = {
   },
 };
 
-async function getHomeData() {
-  ensureNoCache();
+// Each section loads on its own so one failing query only empties that section
+async function orEmpty<T>(label: string, promise: Promise<T>, fallback: T): Promise<T> {
   try {
-    const [latestPosts, categories, listings, vendors, stats] = await Promise.all([
-      getPosts({ limit: 20 }),
-      getCategories(),
-      getListings({ limit: 4 }),
-      getVendors({ limit: 4, featured: true }),
-      getMarketplaceStats(),
-    ]);
-
-    const categorySlugs = ['sport', 'kultura', 'ekonomija'];
-    const categoryPosts: Record<string, Post[]> = {};
-
-    for (const slug of categorySlugs) {
-      try {
-        const posts = await getPosts({ limit: 3, category: slug });
-        categoryPosts[slug] = posts;
-      } catch {
-        categoryPosts[slug] = [];
-      }
-    }
-
-    return {
-      breakingNews: latestPosts.slice(0, 7),
-      heroPost: latestPosts[0] || null,
-      sidebarPosts: latestPosts.slice(1, 4),
-      latestPosts: latestPosts.slice(4, 12),
-      topPosts: latestPosts.slice(0, 5),
-      categories,
-      categoryPosts,
-      listings,
-      vendors,
-      stats,
-    };
+    return await promise;
   } catch (error) {
-    console.error('Error fetching home data:', error);
-    return {
-      breakingNews: [],
-      heroPost: null,
-      sidebarPosts: [],
-      latestPosts: [],
-      topPosts: [],
-      categories: [],
-      categoryPosts: {},
-      listings: [],
-      vendors: [],
-      stats: { vendors: 0, products: 0, services: 0 },
-    };
+    console.error(`Error fetching home ${label}:`, error);
+    return fallback;
   }
 }
 
-const quickLinks = [
-  { name: 'Opština GM', href: 'https://www.gornjimilanovac.rs', icon: '🏛️' },
-  { name: 'Dom zdravlja', href: 'https://dz-gornjimilanovac.rs', icon: '🏥' },
-  { name: 'Hitna pomoć', href: 'tel:194', icon: '🚑' },
-  { name: 'MUP', href: 'https://www.mup.gov.rs', icon: '👮' },
-];
+async function getHomeData() {
+  ensureNoCache();
+  const [posts, listings, products, events, settings] = await Promise.all([
+    orEmpty<Post[]>('posts', getPosts({ limit: 18 }), []),
+    orEmpty<Listing[]>('listings', getListings({ limit: 16 }), []),
+    orEmpty<Product[]>('products', getProducts({ limit: 4 }), []),
+    orEmpty<CommunityEvent[]>('events', getUpcomingEvents(4), []),
+    orEmpty<Record<string, string>>('settings', getSettings(), {}),
+  ]);
+
+  const now = new Date();
+  const newsItems = posts.map((post) => ({
+    post,
+    timeLabel: formatRelativeTime(post.published_at || post.created_at, now),
+  }));
+
+  return {
+    newsItems,
+    listings,
+    products,
+    events,
+    alert: settings.site_alert?.trim() || '',
+    alertLink: safeHref(settings.site_alert_link || ''),
+  };
+}
 
 export default async function HomePage() {
-  const { breakingNews, heroPost, sidebarPosts, latestPosts, topPosts, categories, categoryPosts, listings, vendors, stats } = await getHomeData();
+  const { newsItems, listings, products, events, alert, alertLink } = await getHomeData();
 
   return (
     <>
-      {/* Breaking News Ticker */}
-      <BreakingNewsTicker posts={breakingNews} />
-
-      {/* HERO SECTION */}
-      <section className="bg-surface-muted py-6 md:py-8">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Hero Post - 2/3 width */}
-            <div className="lg:col-span-2">
-              {heroPost ? (
-                <NewsCard post={heroPost} variant="hero" />
-              ) : (
-                <div className="aspect-[16/9] md:aspect-[21/9] bg-surface rounded-xl border border-border flex items-center justify-center">
-                  <p className="text-text-muted">Nema vesti za prikaz</p>
-                </div>
-              )}
-            </div>
-
-            {/* Sidebar Posts - 1/3 width */}
-            <div className="space-y-4">
-              {sidebarPosts.length > 0 ? (
-                sidebarPosts.map((post) => (
-                  <NewsCard key={post.id} post={post} variant="list" />
-                ))
-              ) : (
-                <div className="p-4 bg-surface rounded-lg border border-border text-center text-text-muted text-sm">
-                  Nema dodatnih vesti
-                </div>
-              )}
-            </div>
+      {/* Notice bar - shown while the "site_alert" setting has text */}
+      {alert && (
+        <div className="bg-ink text-paper text-sm">
+          <div className="container flex flex-wrap items-center gap-x-3.5 gap-y-1.5 py-2.5">
+            <span className="font-mono text-[11px] uppercase tracking-[0.1em] bg-accent px-2 py-[3px] rounded">
+              Obaveštenje
+            </span>
+            <span>{alert}</span>
+            {alertLink && (
+              <a href={alertLink} className="text-paper underline underline-offset-[3px] hover:text-paper">
+                Više informacija
+              </a>
+            )}
           </div>
         </div>
-      </section>
+      )}
 
-      {/* DIVIDER - Latest News */}
-      <div className="bg-surface-warm py-2">
-        <div className="container">
-          <div className="flex items-center justify-between py-4 border-b border-border">
-            <h2 className="text-xl md:text-2xl font-serif font-bold text-text">Najnovije vesti</h2>
-            <Link href="/vesti" className="section-link">
-              Sve vesti
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+      <div className="container">
+        {/* VESTI */}
+        <section id="vesti" className="pt-12 pb-14 border-b border-border scroll-mt-24">
+          <HomeNews items={newsItems} />
+        </section>
+
+        {/* ZAJEDNICA */}
+        <section
+          id="zajednica"
+          className="py-14 border-b border-border grid gap-12 grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] scroll-mt-24"
+        >
+          <div>
+            <div className="eyebrow mb-2">Zajednica</div>
+            <h2 className="display-lg mb-6">Ove nedelje</h2>
+            {events.length > 0 ? (
+              <ul className="flex flex-col">
+                {events.map((event) => (
+                  <EventRow key={event.id} event={event} />
+                ))}
+              </ul>
+            ) : (
+              <p className="py-4 border-t border-border text-[15px] text-text-muted">
+                Trenutno nema najavljenih događaja.
+              </p>
+            )}
+            <Link href="/kontakt" className="section-link mt-3.5">
+              Najavite događaj →
             </Link>
           </div>
-        </div>
-      </div>
 
-      {/* NEWS GRID */}
-      <section className="bg-surface-warm py-8">
-        <div className="container">
-          {latestPosts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {latestPosts.map((post) => (
-                <NewsCard key={post.id} post={post} variant="feature" />
+          <div className="self-start flex flex-col gap-[18px] bg-primary-50 rounded-[10px] p-6 sm:p-8">
+            <span className="eyebrow">Inicijative građana</span>
+            <h3 className="font-serif text-[26px] sm:text-[28px] leading-[1.15] font-medium text-pretty">
+              Organizujete akciju u svom kraju? Objavićemo je i pomoći da okupite komšije.
+            </h3>
+            <p className="text-sm text-[#3E4A40]">
+              Čišćenje, sadnja, humanitarna akcija ili tribina - javite redakciji šta, gde i kada.
+            </p>
+            <div className="flex flex-wrap gap-2.5">
+              <Link href="/kontakt" className="btn-primary">Predloži akciju</Link>
+            </div>
+          </div>
+        </section>
+
+        {/* OGLASI */}
+        <section id="oglasi" className="py-14 border-b border-border scroll-mt-24">
+          <HomeListings listings={listings} />
+        </section>
+
+        {/* PRODAVNICA */}
+        <section id="prodavnica" className="py-14 border-b border-border scroll-mt-24">
+          <div className="grid gap-10 items-end mb-7 grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))]">
+            <div>
+              <div className="eyebrow-accent mb-2">Prodavnica zajednice</div>
+              <h2 className="display-lg">Sa Rudnika, Takova i Suvobora</h2>
+            </div>
+            <p className="text-base leading-[1.55] text-text-secondary max-w-[52ch]">
+              Proizvodi lokalnih domaćinstava i zanatlija. Dogovor o preuzimanju i dostavi direktno sa proizvođačem.
+            </p>
+          </div>
+          {products.length > 0 ? (
+            <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(min(100%,220px),1fr))]">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
-            <div className="py-16 text-center text-text-muted">
-              Nema vesti za prikaz
-            </div>
+            <p className="py-10 text-center text-text-muted">Uskoro prvi proizvodi lokalnih proizvođača.</p>
           )}
-        </div>
-      </section>
+          <Link href="/marketplace" className="section-link mt-6">
+            Cela prodavnica →
+          </Link>
+        </section>
 
-      {/* SECTION DIVIDER WITH ACCENT */}
-      <div className="border-t-2 border-accent" />
-
-      {/* CATEGORY SECTIONS */}
-      <section className="bg-surface-warm py-10">
-        <div className="container space-y-12">
-          {Object.entries(categoryPosts).map(([slug, posts]) => {
-            if (posts.length === 0) return null;
-            const categoryNames: Record<string, string> = {
-              sport: 'Sport',
-              kultura: 'Kultura',
-              ekonomija: 'Ekonomija',
-            };
-            const categoryName = categoryNames[slug] || slug;
-
-            return (
-              <div key={slug}>
-                <div className="section-header">
-                  <h2 className="section-title">{categoryName}</h2>
-                  <Link href={`/vesti?kategorija=${slug}`} className="section-link">
-                    Sve iz {categoryName.toLowerCase()}
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
+        {/* O GRADU */}
+        <section
+          id="grad"
+          className="pt-14 pb-16 grid gap-12 grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] scroll-mt-24"
+        >
+          <div className="flex flex-col gap-[18px]">
+            <div className="eyebrow">O gradu</div>
+            <p className="font-serif text-[22px] sm:text-[26px] leading-[1.3] text-pretty">
+              Gornji Milanovac je grad u centralnoj Srbiji, smešten u dolini Despotovice, okružen planinama Rudnik i Suvobor.
+            </p>
+            <div className="flex flex-wrap gap-9 pt-2">
+              {cityStats.map((stat) => (
+                <div key={stat.label} className="flex flex-col">
+                  <span className="font-serif text-[34px] font-medium">{stat.value}</span>
+                  <span className="text-[13px] text-text-muted">{stat.label}</span>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {posts.map((post) => (
-                    <NewsCard key={post.id} post={post} variant="feature" />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 2-COLUMN LAYOUT: Marketplace + Sidebar */}
-      <section className="bg-surface py-10 border-t border-border">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left - Marketplace Teaser (2/3) */}
-            <div className="lg:col-span-2">
-              <div className="section-header">
-                <h2 className="section-title">Lokalni Marketplace</h2>
-                <Link href="/marketplace" className="section-link">
-                  Svi prodavci
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              </div>
-
-              {vendors.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {vendors.slice(0, 4).map((vendor: Vendor) => (
-                    <VendorCard key={vendor.id} vendor={vendor} />
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-surface-muted rounded-xl p-8 text-center">
-                  <p className="text-text-muted mb-4">Marketplace je trenutno prazan</p>
-                  <Link href="/marketplace/registracija" className="btn-primary">
-                    Registruj svoj biznis
-                  </Link>
-                </div>
-              )}
-
-              {/* Marketplace Stats */}
-              <div className="mt-6 grid grid-cols-3 gap-4">
-                <div className="bg-surface-muted rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-primary">{stats.vendors}</p>
-                  <p className="text-sm text-text-muted">Prodavaca</p>
-                </div>
-                <div className="bg-surface-muted rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-primary">{stats.products}</p>
-                  <p className="text-sm text-text-muted">Proizvoda</p>
-                </div>
-                <div className="bg-surface-muted rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-primary">{stats.services}</p>
-                  <p className="text-sm text-text-muted">Usluga</p>
-                </div>
-              </div>
+              ))}
             </div>
+            <Link href="/o-gradu" className="section-link">
+              Istorija i znamenitosti →
+            </Link>
+          </div>
 
-            {/* Right - Sidebar Widgets (1/3) */}
-            <aside className="space-y-6">
-              {/* Weather Widget */}
-              <div className="sidebar-widget">
-                <h3 className="sidebar-widget-title">Vreme</h3>
-                <a
-                  href="https://www.yr.no/en/forecast/daily-table/2-789128/Serbia/Central%20Serbia/Moravica/Gornji%20Milanovac"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg hover:from-primary/10 hover:to-accent/10 transition-all"
-                >
-                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center">
-                    <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <span className="block font-medium text-text">Gornji Milanovac</span>
-                    <span className="text-sm text-text-muted">Pogledaj prognozu</span>
-                  </div>
-                  <svg className="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
+          <div id="imenik" className="flex flex-col">
+            <div className="eyebrow mb-2.5">Važni telefoni</div>
+            {importantPhones.map((phone) => (
+              <div key={phone.name} className="flex justify-between gap-3 py-3 border-t border-border text-[15px]">
+                <span>{phone.name}</span>
+                <a href={telHref(phone.number)} className="font-mono text-ink">
+                  {phone.number}
                 </a>
               </div>
-
-              {/* Quick Links */}
-              <div className="sidebar-widget">
-                <h3 className="sidebar-widget-title">Korisni linkovi</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {quickLinks.map((link) => (
-                    <a
-                      key={link.name}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-3 bg-surface-muted rounded-lg text-sm text-text-secondary hover:bg-primary/5 hover:text-primary transition-all"
-                    >
-                      <span className="text-lg">{link.icon}</span>
-                      <span className="font-medium">{link.name}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* Top 5 Posts */}
-              {topPosts.length > 0 && (
-                <div className="sidebar-widget">
-                  <h3 className="sidebar-widget-title">Najčitanije</h3>
-                  <div className="space-y-4">
-                    {topPosts.map((post, index) => (
-                      <NewsCard key={post.id} post={post} variant="mini" index={index} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Oglasi Preview */}
-              {listings.length > 0 && (
-                <div className="sidebar-widget">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
-                    <h3 className="text-lg font-bold text-text">Oglasi</h3>
-                    <Link href="/oglasi" className="text-xs text-primary hover:text-primary-dark font-medium">
-                      Svi oglasi
-                    </Link>
-                  </div>
-                  <div className="space-y-4">
-                    {listings.slice(0, 2).map((listing) => (
-                      <ListingCard key={listing.id} listing={listing} />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </aside>
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* FULL-WIDTH CTA */}
-      <section className="bg-primary py-12 md:py-16">
-        <div className="container text-center">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-white mb-4">
-            Jesi li iz Gornjeg Milanovca? Pridruži se zajednici!
-          </h2>
-          <p className="text-primary-100 mb-8 max-w-2xl mx-auto text-lg">
-            Postavi oglas, registruj svoj biznis na marketplace-u, ili nas jednostavno kontaktiraj.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/oglasi/novi"
-              className="px-6 py-3 bg-white text-primary font-medium rounded-lg hover:bg-primary-50 transition-colors"
-            >
-              Dodaj oglas
-            </Link>
-            <Link
-              href="/marketplace/registracija"
-              className="px-6 py-3 bg-accent text-white font-medium rounded-lg hover:bg-accent-dark transition-colors"
-            >
-              Registruj prodavca
-            </Link>
-            <Link
-              href="/kontakt"
-              className="px-6 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors"
-            >
-              Kontaktiraj nas
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </>
+  );
+}
+
+function EventRow({ event }: { event: CommunityEvent }) {
+  const { day, date, time } = formatEventDate(event.starts_at);
+  const href = event.url ? safeHref(event.url) : null;
+  const title = href ? (
+    <a href={href} className="text-base font-semibold text-ink">{event.title}</a>
+  ) : (
+    <span className="text-base font-semibold">{event.title}</span>
+  );
+
+  return (
+    <li className="grid grid-cols-[64px_minmax(0,1fr)] gap-[18px] items-start py-3.5 border-t border-border">
+      <div className="flex flex-col items-center py-1.5 border border-ink rounded-md">
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em]">{day}</span>
+        <span className="font-serif text-[26px] leading-none font-medium">{date}</span>
+      </div>
+      <div className="flex flex-col gap-1">
+        {title}
+        <span className="text-sm text-text-muted">
+          {[event.location, time].filter(Boolean).join(' · ')}
+        </span>
+      </div>
+    </li>
   );
 }

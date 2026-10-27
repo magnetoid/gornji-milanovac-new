@@ -200,6 +200,21 @@ CREATE TABLE bookings (
 );
 
 -- ────────────────────────────────────────────────────
+-- EVENTS (Zajednica - kalendar događaja)
+-- ────────────────────────────────────────────────────
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    status VARCHAR(20) DEFAULT 'published' NOT NULL, -- draft, published, cancelled
+    title VARCHAR(500) NOT NULL,
+    starts_at TIMESTAMPTZ NOT NULL,
+    location VARCHAR(255),
+    description TEXT,
+    url VARCHAR(500)
+);
+
+-- ────────────────────────────────────────────────────
 -- SETTINGS
 -- ────────────────────────────────────────────────────
 CREATE TABLE settings (
@@ -226,6 +241,7 @@ CREATE INDEX idx_services_vendor ON services(vendor_id);
 CREATE INDEX idx_bookings_service ON bookings(service_id);
 CREATE INDEX idx_bookings_vendor ON bookings(vendor_id);
 CREATE INDEX idx_bookings_status ON bookings(status);
+CREATE INDEX idx_events_starts_at ON events(starts_at);
 
 -- ────────────────────────────────────────────────────
 -- SEED DATA
@@ -269,7 +285,9 @@ INSERT INTO settings (key, value, type, label, group_name) VALUES
 ('contact_email', 'redakcija@gornji-milanovac.com', 'string', 'Email redakcije', 'contact'),
 ('contact_phone', '032/712-600', 'string', 'Telefon', 'contact'),
 ('google_analytics', '', 'string', 'GA ID', 'seo'),
-('marketplace_enabled', 'true', 'boolean', 'Marketplace aktivan', 'features');
+('marketplace_enabled', 'true', 'boolean', 'Marketplace aktivan', 'features'),
+('site_alert', '', 'string', 'Obaveštenje na naslovnoj (prazno = skriveno)', 'general'),
+('site_alert_link', '', 'string', 'Link obaveštenja', 'general');
 
 -- Sample vendors
 INSERT INTO vendors (status, name, slug, description, category, location, phone, email, working_hours, featured) VALUES

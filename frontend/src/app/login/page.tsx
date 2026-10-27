@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-// Redirect /login to Directus admin panel
+// Staff sign-in lives in the admin panel
 export default function LoginPage() {
-  redirect('https://api.new.gornji-milanovac.com/admin');
+  redirect('/admin/login');
 }

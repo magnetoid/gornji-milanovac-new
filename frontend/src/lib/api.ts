@@ -1,4 +1,4 @@
-import { db, withCache, DbPost, DbCategory, DbPage, DbListing, DbListingCategory, DbVendor, DbProduct, DbService, DbBooking, DbSetting } from './db';
+import { db, withCache, DbPost, DbCategory, DbPage, DbListing, DbListingCategory, DbVendor, DbProduct, DbService, DbBooking, DbSetting, DbEvent } from './db';
 
 // ────────────────────────────────────────────────────
 // TYPES
@@ -820,6 +820,36 @@ export async function getBookings(options: { vendorId?: string; status?: string;
 }
 
 // ────────────────────────────────────────────────────
+// EVENTS
+// ────────────────────────────────────────────────────
+
+export interface CommunityEvent extends Omit<DbEvent, 'created_at' | 'updated_at' | 'starts_at'> {
+  created_at: string;
+  updated_at: string;
+  starts_at: string;
+}
+
+// Published events from the start of today (Belgrade time) onward
+export async function getUpcomingEvents(limit: number = 4): Promise<CommunityEvent[]> {
+  return withCache(`events:upcoming:${limit}`, 300, async () => {
+    const result = await db.query<DbEvent>(`
+      SELECT * FROM events
+      WHERE status = 'published'
+        AND starts_at >= date_trunc('day', NOW() AT TIME ZONE 'Europe/Belgrade') AT TIME ZONE 'Europe/Belgrade'
+      ORDER BY starts_at ASC
+      LIMIT $1
+    `, [limit]);
+
+    return result.rows.map(row => ({
+      ...row,
+      created_at: row.created_at?.toISOString(),
+      updated_at: row.updated_at?.toISOString(),
+      starts_at: row.starts_at.toISOString(),
+    }));
+  });
+}
+
+// ────────────────────────────────────────────────────
 // SETTINGS
 // ────────────────────────────────────────────────────
 
@@ -880,32 +910,8 @@ export async function getMarketplaceStats(): Promise<{ vendors: number; products
 // HELPERS
 // ────────────────────────────────────────────────────
 
-export function formatDate(dateString: string | null): string {
-  if (!dateString) return '';
+export { formatDate, getAssetUrl } from './format';
 
-  const date = new Date(dateString);
-  const months = [
-    'januar', 'februar', 'mart', 'april', 'maj', 'jun',
-    'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'
-  ];
-
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-
-  return `${day}. ${month} ${year}.`;
-}
-
-export function getAssetUrl(url: string | null): string | null {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_URL || '/uploads';
-  return `${baseUrl}/${url}`;
-}
-
-// Category labels
 export const vendorCategoryLabels: Record<VendorCategory, string> = {
   farma: 'Farma',
   zanatstvo: 'Zanatstvo',

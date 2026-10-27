@@ -181,7 +181,7 @@ export default async function ProductPage({ params }: PageProps) {
 
         {/* Sidebar - Info & Contact */}
         <div className="lg:col-span-1">
-          <div className="bg-white border border-border rounded-xl p-6 sticky top-24">
+          <div className="bg-paper-card border border-border rounded-xl p-6 sticky top-24">
             <h1 className="text-2xl font-serif font-bold text-text mb-2">
               {product.title}
             </h1>

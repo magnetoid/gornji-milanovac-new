@@ -30,7 +30,8 @@ RUN chown nextjs:nodejs .next
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# SQL migrations, applied by src/lib/migrate.ts when the server starts
+# Base schema and SQL migrations, applied by src/lib/migrate.ts when the server starts
+COPY --from=builder --chown=nextjs:nodejs /app/db ./db
 COPY --from=builder --chown=nextjs:nodejs /app/migrations ./migrations
 # Maintenance scripts (e.g. set-admin-password.js) run with the traced node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts

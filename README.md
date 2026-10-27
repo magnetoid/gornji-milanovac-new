@@ -1,6 +1,6 @@
 # Gornji Milanovac — portal
 
-Next.js 14 (App Router) + PostgreSQL + Redis, za Docker Compose / Coolify. Kod je u `frontend/`, šema baze u `database/init.sql`, a migracije za postojeću bazu u `frontend/migrations/` (primenjuju se same pri startu).
+Next.js 14 (App Router) + PostgreSQL + Redis, za Docker Compose / Coolify. Kod je u `frontend/`, šema baze u `frontend/db/init.sql`, a migracije za postojeću bazu u `frontend/migrations/`. Oboje aplikacija primenjuje sama pri startu.
 
 ## Lokalni razvoj
 
@@ -11,13 +11,14 @@ npm ci
 npm run dev                  # http://localhost:3000
 ```
 
-Baza: `psql "$DATABASE_URL" -f database/init.sql`. Migracije iz `frontend/migrations/` aplikacija primenjuje sama pri startu (tabela `schema_migrations`).
+Baza: dovoljna je prazna PostgreSQL baza. Pri startu aplikacija u nju učita `frontend/db/init.sql` (ako nema tabele `users`), pa primeni migracije iz `frontend/migrations/` (tabela `schema_migrations`).
 
 ## Produkcija (docker compose / Coolify)
 
 Promenljive okruženja: `POSTGRES_PASSWORD`, `NEXTAUTH_SECRET`, `NEXT_PUBLIC_SITE_URL`, `ADMIN_PASSWORD` (i opciono `ADMIN_EMAIL`), opciono `RSS_IMPORT_INTERVAL_MINUTES` (podrazumevano 30, `0` gasi automatski uvoz).
 
 Pri svakom startu aplikacija sama:
+- učita šemu iz `frontend/db/init.sql` ako je baza prazna;
 - primeni nove SQL migracije iz `frontend/migrations/`, svaku samo jednom;
 - napravi admin nalog ili mu postavi lozinku iz `ADMIN_PASSWORD` ako se razlikuje (najmanje 12 znakova);
 - pokrene automatski uvoz RSS vesti.

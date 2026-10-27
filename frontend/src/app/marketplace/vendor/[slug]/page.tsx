@@ -13,6 +13,7 @@ import {
 } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 import ServiceCard from '@/components/ServiceCard';
+import { sanitizeContent } from '@/lib/sanitize';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -146,7 +147,7 @@ export default async function VendorPage({ params }: PageProps) {
                 <h2 className="text-lg font-bold text-text mb-4">O nama</h2>
                 <div
                   className="prose prose-sm max-w-none text-text-muted"
-                  dangerouslySetInnerHTML={{ __html: vendor.description }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeContent(vendor.description) }}
                 />
               </div>
             )}

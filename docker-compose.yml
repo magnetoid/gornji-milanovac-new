@@ -42,12 +42,16 @@ services:
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://new.gornji-milanovac.com}
       NEXT_PUBLIC_UPLOAD_URL: ${NEXT_PUBLIC_SITE_URL:-https://new.gornji-milanovac.com}/uploads
       UPLOAD_DIR: /app/uploads
+      # Daily pg_dump from the db-backup job, newest BACKUP_KEEP kept
+      BACKUP_DIR: /app/backups
+      BACKUP_KEEP: ${BACKUP_KEEP:-14}
       RSS_IMPORT_INTERVAL_MINUTES: ${RSS_IMPORT_INTERVAL_MINUTES:-30}
       # Creates the admin account / resets its password on start (min. 12 characters)
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@gornji-milanovac.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       - uploads:/app/uploads
+      - backups:/app/backups
     depends_on:
       postgres:
         condition: service_healthy
@@ -58,3 +62,4 @@ volumes:
   postgres_data:
   redis_data:
   uploads:
+  backups:

@@ -6,6 +6,7 @@ import { getPostBySlug, getPosts, getAssetUrl, formatDate, Category } from '@/li
 import NewsCard from '@/components/NewsCard';
 import CopyLinkButton from '@/components/CopyLinkButton';
 import Thumb from '@/components/Thumb';
+import { sanitizeContent } from '@/lib/sanitize';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -207,7 +208,7 @@ export default async function PostPage({ params }: PageProps) {
               <div className="bg-paper-card rounded-xl border border-border p-6 sm:p-8 md:p-10 shadow-sm">
                 <div
                   className="prose max-w-none"
-                  dangerouslySetInnerHTML={{ __html: post.content || '' }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeContent(post.content) }}
                 />
 
                 {/* Tags */}

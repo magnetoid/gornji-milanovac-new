@@ -4,7 +4,7 @@
 import { createHash } from 'crypto';
 import { XMLParser } from 'fast-xml-parser';
 import { db, invalidateCache } from './db';
-import { keywordMatcher, slugify, stripHtml, toLatin, truncate } from './text';
+import { keywordMatcher, normalizeForMatch, slugify, stripHtml, toLatin, truncate } from './text';
 
 export interface FeedItem {
   title: string;
@@ -74,6 +74,16 @@ function absoluteUrl(url: string, base: string): string | null {
   }
 }
 
+// Google News appends the outlet to every title: "Naslov - GMinfo"
+function withoutSourceSuffix(title: string, source: string): string {
+  return source && title.endsWith(` - ${source}`) ? title.slice(0, -(source.length + 3)).trim() : title;
+}
+
+// The same story from two sources (GMinfo and Google News) gets the same key
+export function titleKey(title: string): string {
+  return normalizeForMatch(title).replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
 function parseDate(value: string): Date | null {
   if (!value) return null;
   const date = new Date(value);
@@ -114,7 +124,7 @@ export function parseFeed(xml: string, feedUrl: string): FeedItem[] {
     const html = text(item['content:encoded']) || text(item.description);
     const link = absoluteUrl(text(item.link) || text(item.guid), feedUrl);
     items.push({
-      title: stripHtml(text(item.title)),
+      title: withoutSourceSuffix(stripHtml(text(item.title)), text(item.source)),
       link: link || '',
       summary: stripHtml(text(item.description) || html),
       image: absoluteUrl(imageFrom(item, html), link || feedUrl),
@@ -177,7 +187,13 @@ function linkHash(link: string): string {
   return createHash('sha1').update(link).digest('hex').slice(0, 6);
 }
 
-export async function importSource(source: NewsSource, now: Date = new Date()): Promise<number> {
+// seenTitles holds titleKey()s of recent posts; matching items are skipped and
+// imported ones are added, so later sources do not repeat the story
+export async function importSource(
+  source: NewsSource,
+  now: Date = new Date(),
+  seenTitles: Set<string> = new Set()
+): Promise<number> {
   const items = parseFeed(await fetchFeed(source.feed_url), source.feed_url);
   const matches = keywordMatcher(source.keywords);
   const cutoff = now.getTime() - MAX_ITEM_AGE_DAYS * 86400000;
@@ -186,6 +202,8 @@ export async function importSource(source: NewsSource, now: Date = new Date()): 
   for (const item of items.slice(0, MAX_ITEMS_PER_FEED)) {
     if (item.publishedAt && item.publishedAt.getTime() < cutoff) continue;
     if (!matches(`${item.title}\n${item.summary}`)) continue;
+    const key = titleKey(item.title);
+    if (seenTitles.has(key)) continue;
 
     const title = truncate(toLatin(item.title), 480);
     const excerpt = item.summary ? truncate(toLatin(item.summary), 400) : null;
@@ -209,6 +227,7 @@ export async function importSource(source: NewsSource, now: Date = new Date()): 
       publishedAt,
     ]);
     imported += result.rowCount || 0;
+    seenTitles.add(key);
   }
 
   return imported;
@@ -222,13 +241,20 @@ export async function importAllSources(): Promise<SourceResult[] | null> {
     if (!lock.rows[0].locked) return null;
 
     try {
-      const sources = await client.query<NewsSource>(
-        'SELECT id, name, feed_url, keywords, category_id FROM news_sources WHERE enabled = true ORDER BY name'
+      // Aggregators last, so a story keeps its original source's link and image
+      const sources = await client.query<NewsSource>(`
+        SELECT id, name, feed_url, keywords, category_id FROM news_sources
+        WHERE enabled = true
+        ORDER BY feed_url ~* '(news\\.google\\.|bing\\.com/news)', name
+      `);
+      const recent = await client.query<{ title: string }>(
+        "SELECT title FROM posts WHERE created_at > NOW() - INTERVAL '30 days'"
       );
+      const seenTitles = new Set(recent.rows.map((row) => titleKey(row.title)));
       const results: SourceResult[] = [];
       for (const source of sources.rows) {
         try {
-          const imported = await importSource(source);
+          const imported = await importSource(source, new Date(), seenTitles);
           await client.query(
             'UPDATE news_sources SET last_fetched_at = NOW(), last_imported = $1, last_error = NULL WHERE id = $2',
             [imported, source.id]

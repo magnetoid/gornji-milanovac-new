@@ -1,13 +1,22 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import RichTextEditor from '@/components/admin/RichTextEditor';
+import ImageUploadButton from '@/components/admin/ImageUploadButton';
 
 interface Category {
   id: string;
   name: string;
   slug: string;
+}
+
+// ISO timestamp -> value for <input type="datetime-local"> in the browser's time zone
+function toDateTimeLocal(iso: string | null): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
 interface Post {
@@ -27,8 +36,9 @@ interface Post {
   published_at: string | null;
 }
 
-export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+// Next.js 14 passes params to client pages as a plain object (not a Promise)
+export default function EditPostPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -48,6 +58,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     locale: 'sr',
     source_name: '',
     source_url: '',
+    // datetime-local value (browser time) for scheduled posts
+    published_at: '',
   });
 
   useEffect(() => {
@@ -72,6 +84,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           locale: postData.locale || 'sr',
           source_name: postData.source_name || '',
           source_url: postData.source_url || '',
+          published_at: toDateTimeLocal(postData.published_at),
         });
       })
       .catch(console.error)
@@ -82,12 +95,23 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     e.preventDefault();
     setSaving(true);
 
+    const scheduled = !publishNow && formData.status === 'scheduled';
+    if (scheduled && !formData.published_at) {
+      alert('Izaberite datum i vreme objave');
+      setSaving(false);
+      return;
+    }
+
     try {
+      let publishedAt = post?.published_at ?? null;
+      if (publishNow && formData.status !== 'published') publishedAt = new Date().toISOString();
+      else if (scheduled) publishedAt = new Date(formData.published_at).toISOString();
+
       const payload = {
         ...formData,
         status: publishNow ? 'published' : formData.status,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        published_at: publishNow && formData.status !== 'published' ? new Date().toISOString() : post?.published_at,
+        published_at: publishedAt,
       };
 
       const res = await fetch(`/api/posts/${id}`, {
@@ -100,6 +124,10 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         throw new Error('Failed to update post');
       }
 
+      // Later saves must start from what was stored (status, publish date)
+      const saved = await res.json();
+      setPost(prev => (prev ? { ...prev, ...saved } : prev));
+      setFormData(prev => ({ ...prev, status: saved.status }));
       router.refresh();
       alert('Vest je sačuvana');
     } catch (error) {
@@ -211,12 +239,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sadržaj
               </label>
-              <textarea
+              <RichTextEditor
                 value={formData.content}
-                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                rows={20}
-                placeholder="Unesite sadržaj vesti... (podržava Markdown formatiranje)"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm"
+                onChange={(content) => setFormData(prev => ({ ...prev, content }))}
               />
             </div>
           </div>
@@ -242,6 +267,23 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   </select>
                 </div>
 
+                {formData.status === 'scheduled' && (
+                  <div>
+                    <label htmlFor="published_at" className="block text-sm font-medium text-gray-700 mb-1">
+                      Datum i vreme objave
+                    </label>
+                    <input
+                      id="published_at"
+                      type="datetime-local"
+                      value={formData.published_at}
+                      onChange={(e) => setFormData(prev => ({ ...prev, published_at: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      required
+                    />
+                    <p className="mt-1 text-xs text-gray-500">Vest se objavljuje sama u izabrano vreme.</p>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -255,7 +297,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   </label>
                 </div>
 
-                {post.published_at && (
+                {post.published_at && formData.status !== 'scheduled' && (
                   <p className="text-xs text-gray-500">
                     Objavljeno: {new Date(post.published_at).toLocaleString('sr-RS')}
                   </p>
@@ -321,6 +363,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 placeholder="URL slike"
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
+              <div className="mt-3">
+                <ImageUploadButton onUploaded={(url) => setFormData(prev => ({ ...prev, featured_image: url }))} />
+              </div>
               {formData.featured_image && (
                 <div className="mt-4">
                   <img

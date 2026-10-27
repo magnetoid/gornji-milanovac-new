@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
+import { db } from '@/lib/db';
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 
@@ -51,6 +52,16 @@ export async function POST(request: NextRequest) {
     // Return URL
     const url = `${yearMonth}/${filename}`;
     const fullUrl = `${process.env.NEXT_PUBLIC_UPLOAD_URL || '/uploads'}/${url}`;
+
+    // Media library record; the file is already saved, so a failure here is only logged
+    try {
+      await db.query(`
+        INSERT INTO media (filename, original_name, mime_type, size_bytes, url, uploaded_by)
+        VALUES ($1, $2, $3, $4, $5, (SELECT id FROM users WHERE id::text = $6))
+      `, [url, file.name.slice(0, 255), file.type, file.size, fullUrl, String((session.user as any).id || '')]);
+    } catch (error) {
+      console.error('Error saving media record:', error);
+    }
 
     return NextResponse.json({
       success: true,

@@ -232,6 +232,18 @@ CREATE TABLE news_sources (
 );
 
 -- ────────────────────────────────────────────────────
+-- SCHEDULED JOBS (state of src/lib/jobs.ts)
+-- ────────────────────────────────────────────────────
+CREATE TABLE jobs (
+    name VARCHAR(100) PRIMARY KEY,
+    last_started_at TIMESTAMPTZ,
+    last_finished_at TIMESTAMPTZ,
+    last_status VARCHAR(20),                 -- running, ok, error
+    last_message TEXT,
+    last_duration_ms INTEGER
+);
+
+-- ────────────────────────────────────────────────────
 -- SETTINGS
 -- ────────────────────────────────────────────────────
 CREATE TABLE settings (

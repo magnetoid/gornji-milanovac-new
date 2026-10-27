@@ -113,3 +113,33 @@ export function getAssetUrl(url: string | null): string | null {
   const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_URL || '/uploads';
   return `${baseUrl}/${url}`;
 }
+
+// "2026-10-31" for a moment, by the Belgrade calendar
+export function belgradeDayKey(date: Date): string {
+  const { year, month, day } = partsInBelgrade(date);
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+// The UTC instant of Belgrade midnight starting the given day (month is 1-12)
+export function belgradeMidnight(year: number, month: number, day: number): Date {
+  let guess = Date.UTC(year, month - 1, day);
+  for (let i = 0; i < 2; i++) {
+    const p = partsInBelgrade(new Date(guess));
+    const shownAsUtc = Date.UTC(p.year, p.month, p.day, p.hour, p.minute);
+    guess -= shownAsUtc - Date.UTC(year, month - 1, day);
+  }
+  return new Date(guess);
+}
+
+export const monthNames = months;
+export const weekdayNames = weekdaysLong;
+
+// "Danas · 27. oktobar", "Juče · 26. oktobar", "Ponedeljak · 19. oktobar"
+export function formatDayHeading(dateString: string, now: Date = new Date()): string {
+  const date = new Date(dateString);
+  const { weekday, day, month, year } = partsInBelgrade(date);
+  const days = calendarDaysBetween(date, now);
+  const prefix = days === 0 ? 'Danas' : days === 1 ? 'Juče' : weekdaysLong[weekday];
+  const showYear = year !== partsInBelgrade(now).year;
+  return `${prefix} · ${day}. ${months[month]}${showYear ? ` ${year}.` : ''}`;
+}

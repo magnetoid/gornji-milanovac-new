@@ -116,8 +116,8 @@ export default async function HomePage() {
                 Trenutno nema najavljenih događaja.
               </p>
             )}
-            <Link href="/kontakt" className="section-link mt-3.5">
-              Najavite događaj →
+            <Link href="/dogadjaji" className="section-link mt-3.5">
+              Kalendar događaja →
             </Link>
           </div>
 

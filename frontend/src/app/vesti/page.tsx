@@ -1,8 +1,10 @@
 import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getPosts, getCategories, Category } from '@/lib/api';
-import NewsCard from '@/components/NewsCard';
+import { getPosts, getCategories, getNewsSources, Category } from '@/lib/api';
+import { belgradeDayKey, formatDayHeading, formatEventDate } from '@/lib/format';
+import NewsArchive, { ArchiveItem } from '@/components/NewsArchive';
+import { OWN_SOURCE } from '@/components/NewsCard';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -13,13 +15,24 @@ interface PageProps {
   searchParams: { kategorija?: string; page?: string };
 }
 
-const categoryFilters = [
-  { name: 'Sve', slug: '', color: 'primary' },
-  { name: 'Sport', slug: 'sport', color: 'blue' },
-  { name: 'Kultura', slug: 'kultura', color: 'purple' },
-  { name: 'Ekonomija', slug: 'ekonomija', color: 'emerald' },
-  { name: 'Hronika', slug: 'hronika', color: 'orange' },
-];
+const PAGE_SIZE = 30;
+
+function hostOf(url: string | null): string {
+  if (!url) return '';
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+function vestiHref(category: string | undefined, page: number): string {
+  const params = new URLSearchParams();
+  if (category) params.set('kategorija', category);
+  if (page > 1) params.set('page', String(page));
+  const query = params.toString();
+  return query ? `/vesti?${query}` : '/vesti';
+}
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const categorySlug = searchParams.kategorija;
@@ -48,207 +61,82 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 export default async function VestiPage({ searchParams }: PageProps) {
   ensureNoCache();
   const categorySlug = searchParams.kategorija;
-  const page = parseInt(searchParams.page || '1', 10);
+  const page = Math.max(1, parseInt(searchParams.page || '1', 10) || 1);
 
-  const [posts, categories] = await Promise.all([
-    getPosts({ limit: 12, page, category: categorySlug }),
-    getCategories(),
+  const [posts, categories, sourceRows] = await Promise.all([
+    getPosts({ limit: PAGE_SIZE, page, category: categorySlug }).catch(() => []),
+    getCategories().catch(() => [] as Category[]),
+    getNewsSources().catch(() => []),
   ]);
 
   const currentCategory = categorySlug
     ? categories.find((c: Category) => c.slug === categorySlug)
     : null;
 
+  const now = new Date();
+  const items: ArchiveItem[] = posts.map((post) => {
+    const date = post.published_at || post.created_at;
+    return {
+      post,
+      time: formatEventDate(date).time,
+      dayKey: belgradeDayKey(new Date(date)),
+      dayHeading: formatDayHeading(date, now),
+    };
+  });
+
+  const sources = sourceRows.map((row) => ({
+    name: row.name || OWN_SOURCE,
+    host: row.name ? hostOf(row.url) : 'gornji-milanovac.com',
+  }));
+
+  const tabs = [{ name: 'Sve', slug: '' }, ...categories.map((c) => ({ name: c.name, slug: c.slug }))];
+
   return (
-    <div className="bg-surface-warm min-h-screen">
-      {/* Page Header */}
-      <div className="bg-paper-card border-b border-border">
-        <div className="container py-8">
-          {/* Breadcrumb */}
-          <nav className="mb-4">
-            <ol className="flex items-center gap-2 text-sm">
-              <li>
-                <Link href="/" className="text-text-muted hover:text-primary transition-colors">
-                  Početna
-                </Link>
-              </li>
-              <li className="text-text-muted">/</li>
-              <li>
-                <Link href="/vesti" className="text-text-muted hover:text-primary transition-colors">
-                  Vesti
-                </Link>
-              </li>
-              {currentCategory && (
-                <>
-                  <li className="text-text-muted">/</li>
-                  <li className="text-text font-medium">{currentCategory.name}</li>
-                </>
-              )}
-            </ol>
-          </nav>
-
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-text">
-            {currentCategory ? currentCategory.name : 'Sve Vesti'}
+    <div className="container pb-[72px]">
+      <div className="flex flex-wrap items-end justify-between gap-5 pt-10 pb-6 border-b border-border">
+        <div>
+          <div className="eyebrow mb-2">
+            Agregator · {sources.length} {sources.length === 1 ? 'izvor' : 'izvora'}
+          </div>
+          <h1 className="font-serif text-[36px] sm:text-[48px] font-medium tracking-[-0.02em] leading-[1.1]">
+            {currentCategory ? currentCategory.name : 'Sve vesti'}
           </h1>
-          <p className="text-text-muted mt-2">
-            Najnovije vesti iz Gornjeg Milanovca i Takovskog kraja
-          </p>
         </div>
+        <nav
+          className="flex gap-1 w-full sm:w-auto max-w-full overflow-x-auto scrollbar-hide shadow-[inset_0_-1px_0_#DDD7CA]"
+          aria-label="Kategorije vesti"
+        >
+          {tabs.map((tab) => {
+            const isActive = (categorySlug || '') === tab.slug;
+            return (
+              <Link
+                key={tab.slug || 'sve'}
+                href={vestiHref(tab.slug || undefined, 1)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`whitespace-nowrap px-3 py-2 text-sm font-medium border-b-2 ${
+                  isActive ? 'border-ink text-ink' : 'border-transparent text-text-muted hover:text-ink'
+                }`}
+              >
+                {tab.name}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
-      {/* Category Filter Chips */}
-      <div className="bg-paper-card border-b border-border sticky top-[104px] z-40">
-        <div className="container">
-          <div className="flex items-center gap-2 overflow-x-auto py-3 scrollbar-hide">
-            {categoryFilters.map((filter) => {
-              const isActive = (!categorySlug && !filter.slug) || categorySlug === filter.slug;
-              return (
-                <Link
-                  key={filter.slug}
-                  href={filter.slug ? `/vesti?kategorija=${filter.slug}` : '/vesti'}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-surface-muted text-text-secondary hover:bg-border hover:text-text'
-                  }`}
-                >
-                  {filter.name}
-                </Link>
-              );
-            })}
-          </div>
+      <NewsArchive items={items} sources={sources} />
+
+      {(page > 1 || posts.length === PAGE_SIZE) && (
+        <div className="flex items-center justify-center gap-3 pt-10">
+          {page > 1 && (
+            <Link href={vestiHref(categorySlug, page - 1)} className="btn-outline">← Novije</Link>
+          )}
+          <span className="font-mono text-xs uppercase tracking-[0.1em] text-text-muted">Strana {page}</span>
+          {posts.length === PAGE_SIZE && (
+            <Link href={vestiHref(categorySlug, page + 1)} className="btn-outline">Starije →</Link>
+          )}
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="container py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {posts.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {posts.map((post) => (
-                    <NewsCard key={post.id} post={post} variant="feature" />
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                <div className="flex items-center justify-center gap-3 mt-12">
-                  {page > 1 && (
-                    <Link
-                      href={`/vesti?${categorySlug ? `kategorija=${categorySlug}&` : ''}page=${page - 1}`}
-                      className="px-5 py-2.5 bg-paper-card border border-border rounded-lg text-text hover:border-primary hover:text-primary transition-all shadow-sm"
-                    >
-                      <span className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        Prethodna
-                      </span>
-                    </Link>
-                  )}
-
-                  <span className="px-5 py-2.5 bg-primary text-white rounded-lg font-medium shadow-sm">
-                    Strana {page}
-                  </span>
-
-                  {posts.length === 12 && (
-                    <Link
-                      href={`/vesti?${categorySlug ? `kategorija=${categorySlug}&` : ''}page=${page + 1}`}
-                      className="px-5 py-2.5 bg-paper-card border border-border rounded-lg text-text hover:border-primary hover:text-primary transition-all shadow-sm"
-                    >
-                      <span className="flex items-center gap-2">
-                        Sledeća
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </span>
-                    </Link>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-16 bg-paper-card rounded-xl border border-border">
-                <svg className="w-16 h-16 text-text-muted mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                </svg>
-                <h3 className="text-xl font-serif font-bold text-text mb-2">Nema vesti za prikaz</h3>
-                <p className="text-text-muted mb-6">Trenutno nema vesti u ovoj kategoriji.</p>
-                <Link
-                  href="/vesti"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors"
-                >
-                  Pogledaj sve vesti
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <aside className="space-y-6">
-            {/* Categories Widget */}
-            <div className="sidebar-widget">
-              <h3 className="sidebar-widget-title">Kategorije</h3>
-              <ul className="space-y-1">
-                <li>
-                  <Link
-                    href="/vesti"
-                    className={`flex items-center justify-between py-2.5 px-3 rounded-lg transition-all ${
-                      !categorySlug
-                        ? 'bg-primary text-white'
-                        : 'text-text-secondary hover:bg-surface-muted hover:text-primary'
-                    }`}
-                  >
-                    <span>Sve kategorije</span>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </li>
-                {categories.map((category: Category) => (
-                  <li key={category.id}>
-                    <Link
-                      href={`/vesti?kategorija=${category.slug}`}
-                      className={`flex items-center justify-between py-2.5 px-3 rounded-lg transition-all ${
-                        categorySlug === category.slug
-                          ? 'bg-primary text-white'
-                          : 'text-text-secondary hover:bg-surface-muted hover:text-primary'
-                      }`}
-                    >
-                      <span>{category.name}</span>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Newsletter Widget */}
-            <div className="sidebar-widget bg-gradient-to-br from-primary to-primary-dark text-white border-none">
-              <h3 className="text-lg font-bold mb-2">Newsletter</h3>
-              <p className="text-white/80 text-sm mb-4">
-                Prijavite se za najnovije vesti direktno u vaš inbox.
-              </p>
-              <form className="space-y-3">
-                <input
-                  type="email"
-                  placeholder="Vaš email"
-                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none focus:border-white/40 transition-all"
-                />
-                <button
-                  type="submit"
-                  className="w-full px-4 py-2.5 bg-accent text-white font-medium rounded-lg hover:bg-accent-dark transition-colors text-sm"
-                >
-                  Prijavi se
-                </button>
-              </form>
-            </div>
-          </aside>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

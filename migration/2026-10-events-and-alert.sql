@@ -9,10 +9,13 @@ CREATE TABLE IF NOT EXISTS events (
     status VARCHAR(20) DEFAULT 'published' NOT NULL, -- draft, published, cancelled
     title VARCHAR(500) NOT NULL,
     starts_at TIMESTAMPTZ NOT NULL,
+    category VARCHAR(50), -- kultura, grad, akcija, pijaca, sport, ostalo
     location VARCHAR(255),
     description TEXT,
     url VARCHAR(500)
 );
+
+ALTER TABLE events ADD COLUMN IF NOT EXISTS category VARCHAR(50);
 
 CREATE INDEX IF NOT EXISTS idx_events_starts_at ON events(starts_at);
 

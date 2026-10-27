@@ -7,10 +7,10 @@ import { weatherUrl } from '@/lib/site';
 
 const mainNavigation = [
   { name: 'Vesti', href: '/vesti' },
-  { name: 'Zajednica', href: '/#zajednica' },
+  { name: 'Događaji', href: '/dogadjaji' },
   { name: 'Oglasi', href: '/oglasi' },
   { name: 'Prodavnica', href: '/marketplace' },
-  { name: 'Imenik', href: '/o-gradu#vazni-telefoni' },
+  { name: 'Imenik', href: '/imenik' },
   { name: 'O gradu', href: '/o-gradu' },
 ];
 

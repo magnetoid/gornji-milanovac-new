@@ -11,6 +11,8 @@ const newsreader = Newsreader({
   weight: ['400', '500', '600'],
   variable: '--font-serif',
   display: 'swap',
+  // Next 14.2 ships no fallback metrics for Newsreader
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {

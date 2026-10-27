@@ -5,8 +5,10 @@ import Link from 'next/link';
 
 const footerLinks = [
   { name: 'Vesti', href: '/vesti' },
+  { name: 'Događaji', href: '/dogadjaji' },
   { name: 'Oglasi', href: '/oglasi' },
   { name: 'Prodavnica', href: '/marketplace' },
+  { name: 'Imenik', href: '/imenik' },
   { name: 'O gradu', href: '/o-gradu' },
   { name: 'Kontakt', href: '/kontakt' },
 ];

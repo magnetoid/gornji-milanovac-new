@@ -285,6 +285,7 @@ export interface DbEvent {
   status: 'draft' | 'published' | 'cancelled';
   title: string;
   starts_at: Date;
+  category: string | null;
   location: string | null;
   description: string | null;
   url: string | null;

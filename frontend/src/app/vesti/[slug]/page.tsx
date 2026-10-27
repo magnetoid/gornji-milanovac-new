@@ -1,11 +1,11 @@
 import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getPosts, getAssetUrl, formatDate, Category } from '@/lib/api';
 import NewsCard from '@/components/NewsCard';
 import CopyLinkButton from '@/components/CopyLinkButton';
+import Thumb from '@/components/Thumb';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,7 +19,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const post = await getPostBySlug(params.slug);
 
-  if (!post) {
+  if (!post || post.status !== 'published') {
     return {
       title: 'Vest nije pronađena',
     };
@@ -66,7 +66,8 @@ export default async function PostPage({ params }: PageProps) {
   ensureNoCache();
   const post = await getPostBySlug(params.slug);
 
-  if (!post) {
+  // Drafts and archived (deleted) posts are not public
+  if (!post || post.status !== 'published') {
     notFound();
   }
 
@@ -192,15 +193,7 @@ export default async function PostPage({ params }: PageProps) {
         {imageUrl && (
           <div className="container py-6">
             <figure className="rounded-xl overflow-hidden bg-paper-card border border-border shadow-sm">
-              <div className="relative aspect-video md:aspect-[21/9]">
-                <Image
-                  src={imageUrl}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
+              <Thumb src={imageUrl} alt={post.title} className="aspect-video md:aspect-[21/9]" eager />
             </figure>
           </div>
         )}

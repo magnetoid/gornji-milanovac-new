@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { formatLongDate } from '@/lib/format';
 import { weatherUrl } from '@/lib/site';
 
@@ -21,6 +22,7 @@ const utilityLinks = [
 ];
 
 export default function Header() {
+  const pathname = usePathname() || '';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
@@ -28,6 +30,9 @@ export default function Header() {
     // Set on the client so the date never mismatches the server render
     setCurrentDate(formatLongDate(new Date()));
   }, []);
+
+  // The admin panel has its own sidebar layout
+  if (pathname.startsWith('/admin')) return null;
 
   return (
     <>

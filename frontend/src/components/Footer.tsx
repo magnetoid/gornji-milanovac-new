@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const footerLinks = [
   { name: 'Vesti', href: '/vesti' },
@@ -20,6 +21,7 @@ const korisniLinkovi = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname() || '';
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -30,6 +32,9 @@ export default function Footer() {
       setEmail('');
     }
   };
+
+  // The admin panel has its own sidebar layout
+  if (pathname.startsWith('/admin')) return null;
 
   return (
     <footer className="bg-ink text-paper">

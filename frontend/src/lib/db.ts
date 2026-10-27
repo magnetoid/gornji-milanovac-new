@@ -33,7 +33,9 @@ export async function getRedis(): Promise<RedisClientType | null> {
     redisConnecting = true;
     redisClient = createClient({
       url: process.env.REDIS_URL || 'redis://localhost:6379',
-      socket: { connectTimeout: 2000 }
+      // No automatic retries: with them connect() never settles while Redis
+      // is down and every cached query hangs. A new client is made next call.
+      socket: { connectTimeout: 2000, reconnectStrategy: false }
     });
     redisClient.on('error', () => { redisClient = null; redisConnecting = false; });
     await redisClient.connect();

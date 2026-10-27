@@ -1,6 +1,5 @@
 -- RSS aggregator sources for an existing database (init.sql has the same
--- table for fresh installs). Run once:
---   psql "$DATABASE_URL" -f migration/2026-10-news-sources.sql
+-- table for fresh installs). Applied automatically at startup by src/lib/migrate.ts.
 
 CREATE TABLE IF NOT EXISTS news_sources (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

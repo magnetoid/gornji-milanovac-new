@@ -80,7 +80,7 @@ export default async function IzvoriPage({ searchParams }: { searchParams: Promi
       <div className="bg-white rounded-lg shadow overflow-x-auto">
         {loadError ? (
           <p className="px-6 py-12 text-center text-gray-500">
-            Tabela izvora nije dostupna. Pokrenite migration/2026-10-news-sources.sql.
+            Tabela izvora nije dostupna. Migracije se pokreću pri startu aplikacije; proverite log servera.
           </p>
         ) : (
           <table className="w-full">

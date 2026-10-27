@@ -1,6 +1,6 @@
 # Gornji Milanovac — portal
 
-Next.js 14 (App Router) + PostgreSQL + Redis, za Docker Compose / Coolify. Kod je u `frontend/`, šema baze u `database/init.sql`, a migracije za postojeću bazu u `migration/`.
+Next.js 14 (App Router) + PostgreSQL + Redis, za Docker Compose / Coolify. Kod je u `frontend/`, šema baze u `database/init.sql`, a migracije za postojeću bazu u `frontend/migrations/` (primenjuju se same pri startu).
 
 ## Lokalni razvoj
 
@@ -11,27 +11,23 @@ npm ci
 npm run dev                  # http://localhost:3000
 ```
 
-Baza: `psql "$DATABASE_URL" -f database/init.sql`, pa sve datoteke iz `migration/` redom.
+Baza: `psql "$DATABASE_URL" -f database/init.sql`. Migracije iz `frontend/migrations/` aplikacija primenjuje sama pri startu (tabela `schema_migrations`).
 
 ## Produkcija (docker compose / Coolify)
 
-Promenljive okruženja: `POSTGRES_PASSWORD`, `NEXTAUTH_SECRET`, `NEXT_PUBLIC_SITE_URL`, opciono `RSS_IMPORT_INTERVAL_MINUTES` (podrazumevano 30, `0` gasi automatski uvoz).
+Promenljive okruženja: `POSTGRES_PASSWORD`, `NEXTAUTH_SECRET`, `NEXT_PUBLIC_SITE_URL`, `ADMIN_PASSWORD` (i opciono `ADMIN_EMAIL`), opciono `RSS_IMPORT_INTERVAL_MINUTES` (podrazumevano 30, `0` gasi automatski uvoz).
 
-Posle prvog deploy-a ili kad se doda nova migracija:
+Pri svakom startu aplikacija sama:
+- primeni nove SQL migracije iz `frontend/migrations/`, svaku samo jednom;
+- napravi admin nalog ili mu postavi lozinku iz `ADMIN_PASSWORD` ako se razlikuje (najmanje 12 znakova);
+- pokrene automatski uvoz RSS vesti.
 
-```bash
-docker compose exec -T postgres psql -U gm_user -d gornji_milanovac < migration/2026-10-events-and-alert.sql
-docker compose exec -T postgres psql -U gm_user -d gornji_milanovac < migration/2026-10-news-sources.sql
-```
-
-Admin nalog (seed nalog nema lozinku dok se ne postavi):
+Posle deploy-a nema ručnih koraka. Admin panel: `/admin`. Lozinka može da se postavi i ručno:
 
 ```bash
 docker compose exec -e ADMIN_PASSWORD='nova-duga-lozinka' nextjs \
   node scripts/set-admin-password.js admin@gornji-milanovac.com
 ```
-
-Admin panel: `/admin`.
 
 ## Prelazak sa starog WordPress sajta
 

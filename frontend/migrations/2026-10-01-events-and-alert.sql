@@ -1,6 +1,6 @@
 -- Adds the events calendar and the homepage notice bar settings to an
 -- existing database (init.sql already includes both for fresh installs).
--- Run once: psql "$DATABASE_URL" -f migration/2026-10-events-and-alert.sql
+-- Applied automatically at startup by src/lib/migrate.ts.
 
 CREATE TABLE IF NOT EXISTS events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

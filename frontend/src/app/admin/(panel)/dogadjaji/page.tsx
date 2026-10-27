@@ -47,7 +47,7 @@ export default async function DogadjajiAdminPage() {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {loadError ? (
           <p className="px-6 py-12 text-center text-gray-500">
-            Tabela događaja nije dostupna. Pokrenite migration/2026-10-events-and-alert.sql.
+            Tabela događaja nije dostupna. Migracije se pokreću pri startu aplikacije; proverite log servera.
           </p>
         ) : (
           <table className="w-full">

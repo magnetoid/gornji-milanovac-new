@@ -6,7 +6,7 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   output: 'standalone',
-  // src/instrumentation.ts starts the RSS import schedule
+  // src/instrumentation.ts runs migrations, the admin bootstrap and the RSS schedule
   experimental: { instrumentationHook: true },
   images: {
     remotePatterns: [

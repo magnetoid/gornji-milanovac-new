@@ -19,6 +19,7 @@ const navigation = [
     items: [
       { name: 'Dashboard', href: '/admin', icon: 'home' },
       { name: 'Vesti', href: '/admin/vesti', icon: 'newspaper' },
+      { name: 'Izvori vesti', href: '/admin/izvori', icon: 'newspaper' },
       { name: 'Stranice', href: '/admin/stranice', icon: 'file-text' },
       { name: 'Mediji', href: '/admin/mediji', icon: 'image' },
     ],
@@ -27,6 +28,7 @@ const navigation = [
     group: 'Portal',
     items: [
       { name: 'Oglasi', href: '/admin/oglasi', icon: 'tag' },
+      { name: 'Događaji', href: '/admin/dogadjaji', icon: 'calendar' },
       { name: 'Prodavci', href: '/admin/marketplace/prodavci', icon: 'store' },
       { name: 'Rezervacije', href: '/admin/marketplace/rezervacije', icon: 'calendar' },
     ],

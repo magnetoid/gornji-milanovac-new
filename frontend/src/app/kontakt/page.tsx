@@ -104,7 +104,7 @@ export default function KontaktPage() {
             {contactInfo.map((info) => (
               <div
                 key={info.title}
-                className="bg-white rounded-xl border border-border p-6 flex items-start gap-4 hover:border-primary hover:shadow-md transition-all"
+                className="bg-paper-card rounded-xl border border-border p-6 flex items-start gap-4 hover:border-primary hover:shadow-md transition-all"
               >
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary flex-shrink-0">
                   {info.icon}
@@ -127,7 +127,7 @@ export default function KontaktPage() {
             ))}
 
             {/* Social Links */}
-            <div className="bg-white rounded-xl border border-border p-6">
+            <div className="bg-paper-card rounded-xl border border-border p-6">
               <h3 className="text-lg font-bold text-text mb-4">Pratite nas</h3>
               <div className="flex items-center gap-3">
                 {socialLinks.map((social) => (
@@ -146,7 +146,7 @@ export default function KontaktPage() {
             </div>
 
             {/* Map */}
-            <div className="bg-white rounded-xl border border-border overflow-hidden">
+            <div className="bg-paper-card rounded-xl border border-border overflow-hidden">
               <iframe
                 src="https://www.openstreetmap.org/export/embed.html?bbox=20.435%2C43.975%2C20.475%2C44.015&layer=mapnik&marker=43.9939%2C20.4548"
                 width="100%"
@@ -172,7 +172,7 @@ export default function KontaktPage() {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white rounded-xl border border-border p-6 md:p-8 h-fit">
+          <div className="bg-paper-card rounded-xl border border-border p-6 md:p-8 h-fit">
             <h2 className="text-2xl font-serif font-bold text-text mb-6">Pošaljite Nam Poruku</h2>
 
             <form

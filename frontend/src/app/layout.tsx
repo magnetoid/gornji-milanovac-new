@@ -1,20 +1,18 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, Inter } from 'next/font/google';
+import { Newsreader } from 'next/font/google';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-const playfair = Playfair_Display({
+const newsreader = Newsreader({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700', '800', '900'],
+  weight: ['400', '500', '600'],
   variable: '--font-serif',
   display: 'swap',
-});
-
-const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-sans',
-  display: 'swap',
+  // Next 14.2 ships no fallback metrics for Newsreader
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -67,14 +65,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="sr" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="sr" className={`${GeistSans.variable} ${GeistMono.variable} ${newsreader.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#1B5E20" />
+        <meta name="theme-color" content="#F4F1EA" />
       </head>
-      <body className={inter.className}>
-        <div className="min-h-screen flex flex-col bg-surface-warm">
+      <body>
+        <div className="min-h-screen flex flex-col bg-paper">
           <Header />
           <main className="flex-grow">
             {children}

@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { v4 as uuid } from 'uuid';
+import { randomUUID } from 'crypto';
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const ext = file.name.split('.').pop()?.toLowerCase() || 'bin';
-    const filename = `${uuid()}.${ext}`;
+    const filename = `${randomUUID()}.${ext}`;
     const filePath = join(uploadPath, filename);
 
     // Write file

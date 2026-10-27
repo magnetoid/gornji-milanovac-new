@@ -81,7 +81,7 @@ export default async function OglasiPage({ searchParams }: PageProps) {
       </div>
 
       {/* Category Filter Tabs */}
-      <div className="bg-white border-b border-border sticky top-[120px] md:top-[136px] z-40">
+      <div className="bg-paper-card border-b border-border sticky top-[120px] md:top-[136px] z-40">
         <div className="container">
           <div className="flex items-center gap-1 overflow-x-auto py-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
             {categoryFilters.map((filter) => {
@@ -122,7 +122,7 @@ export default async function OglasiPage({ searchParams }: PageProps) {
                   {page > 1 && (
                     <Link
                       href={`/oglasi?${categorySlug ? `kategorija=${categorySlug}&` : ''}page=${page - 1}`}
-                      className="px-4 py-2 bg-white border border-border rounded-lg text-text hover:border-primary hover:text-primary transition-colors"
+                      className="px-4 py-2 bg-paper-card border border-border rounded-lg text-text hover:border-primary hover:text-primary transition-colors"
                     >
                       <span className="flex items-center gap-1">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +140,7 @@ export default async function OglasiPage({ searchParams }: PageProps) {
                   {listings.length === 12 && (
                     <Link
                       href={`/oglasi?${categorySlug ? `kategorija=${categorySlug}&` : ''}page=${page + 1}`}
-                      className="px-4 py-2 bg-white border border-border rounded-lg text-text hover:border-primary hover:text-primary transition-colors"
+                      className="px-4 py-2 bg-paper-card border border-border rounded-lg text-text hover:border-primary hover:text-primary transition-colors"
                     >
                       <span className="flex items-center gap-1">
                         Sledeća
@@ -153,7 +153,7 @@ export default async function OglasiPage({ searchParams }: PageProps) {
                 </div>
               </>
             ) : (
-              <div className="text-center py-16 bg-white rounded-lg border border-border">
+              <div className="text-center py-16 bg-paper-card rounded-lg border border-border">
                 <svg className="w-16 h-16 text-text-light mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>

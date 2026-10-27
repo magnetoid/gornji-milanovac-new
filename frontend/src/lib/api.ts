@@ -1,10 +1,10 @@
-import { db, withCache, DbPost, DbCategory, DbPage, DbListing, DbListingCategory, DbVendor, DbProduct, DbService, DbBooking, DbSetting } from './db';
+import { db, withCache, DbPost, DbCategory, DbPage, DbListing, DbListingCategory, DbVendor, DbProduct, DbService, DbBooking, DbSetting, DbEvent } from './db';
 
 // ────────────────────────────────────────────────────
 // TYPES
 // ────────────────────────────────────────────────────
 
-export type VendorCategory = 'farma' | 'zanatstvo' | 'usluge' | 'trgovina' | 'turizam' | 'lepota' | 'edukacija' | 'ostalo';
+export type VendorCategory = 'farma' | 'zanatstvo' | 'usluge' | 'trgovina' | 'turizam' | 'lepota' | 'edukacija' | 'zdravlje' | 'ustanove' | 'majstori' | 'auto' | 'ugostitelji' | 'ostalo';
 export type ProductCategory = 'hrana' | 'pice' | 'meso' | 'voce_povrce' | 'mlecni' | 'med' | 'preradjevine' | 'zanatski' | 'ostalo';
 export type ServiceCategory = 'popravke' | 'gradjevina' | 'lepota' | 'zdravlje' | 'edukacija' | 'prevoz' | 'ugostitelstvo' | 'ostalo';
 
@@ -205,6 +205,25 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         name: row.author_name,
       } : undefined,
     };
+  });
+}
+
+// Sources of published posts, most active first; null source = own posts
+export async function getNewsSources(): Promise<{ name: string | null; url: string | null; count: number }[]> {
+  return withCache('posts:sources', 600, async () => {
+    const result = await db.query<{ source_name: string | null; source_url: string | null; count: string }>(`
+      SELECT source_name, MAX(source_url) AS source_url, COUNT(*) AS count
+      FROM posts
+      WHERE status = 'published'
+      GROUP BY source_name
+      ORDER BY COUNT(*) DESC
+      LIMIT 30
+    `);
+    return result.rows.map(row => ({
+      name: row.source_name,
+      url: row.source_url,
+      count: parseInt(row.count, 10),
+    }));
   });
 }
 
@@ -416,10 +435,11 @@ interface GetVendorsOptions {
   category?: VendorCategory;
   status?: string;
   featured?: boolean;
+  search?: string;
 }
 
 export async function getVendors(options: GetVendorsOptions = {}): Promise<Vendor[]> {
-  const { limit = 12, page = 1, category, status = 'active', featured } = options;
+  const { limit = 12, page = 1, category, status = 'active', featured, search } = options;
   const offset = (page - 1) * limit;
   const cacheKey = `vendors:${JSON.stringify(options)}`;
 
@@ -438,6 +458,12 @@ export async function getVendors(options: GetVendorsOptions = {}): Promise<Vendo
       params.push(featured);
     }
 
+    if (search) {
+      query += ` AND (name ILIKE $${paramIndex} OR description ILIKE $${paramIndex} OR location ILIKE $${paramIndex})`;
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
     query += ` ORDER BY featured DESC, created_at DESC`;
     query += ` LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
     params.push(limit, offset);
@@ -450,6 +476,20 @@ export async function getVendors(options: GetVendorsOptions = {}): Promise<Vendo
       updated_at: row.updated_at?.toISOString(),
       rating: row.rating ? parseFloat(String(row.rating)) : 0,
     }));
+  });
+}
+
+// Number of active vendors per category, for directory filters
+export async function getVendorCategoryCounts(): Promise<Record<string, number>> {
+  return withCache('vendors:category-counts', 300, async () => {
+    const result = await db.query<{ category: string | null; count: string }>(
+      `SELECT category, COUNT(*) AS count FROM vendors WHERE status = 'active' GROUP BY category`
+    );
+    const counts: Record<string, number> = {};
+    for (const row of result.rows) {
+      counts[row.category || 'ostalo'] = (counts[row.category || 'ostalo'] || 0) + parseInt(row.count, 10);
+    }
+    return counts;
   });
 }
 
@@ -820,6 +860,54 @@ export async function getBookings(options: { vendorId?: string; status?: string;
 }
 
 // ────────────────────────────────────────────────────
+// EVENTS
+// ────────────────────────────────────────────────────
+
+export interface CommunityEvent extends Omit<DbEvent, 'created_at' | 'updated_at' | 'starts_at'> {
+  created_at: string;
+  updated_at: string;
+  starts_at: string;
+}
+
+// Published events from the start of today (Belgrade time) onward
+export async function getUpcomingEvents(limit: number = 4): Promise<CommunityEvent[]> {
+  return withCache(`events:upcoming:${limit}`, 300, async () => {
+    const result = await db.query<DbEvent>(`
+      SELECT * FROM events
+      WHERE status = 'published'
+        AND starts_at >= date_trunc('day', NOW() AT TIME ZONE 'Europe/Belgrade') AT TIME ZONE 'Europe/Belgrade'
+      ORDER BY starts_at ASC
+      LIMIT $1
+    `, [limit]);
+
+    return result.rows.map(row => ({
+      ...row,
+      created_at: row.created_at?.toISOString(),
+      updated_at: row.updated_at?.toISOString(),
+      starts_at: row.starts_at.toISOString(),
+    }));
+  });
+}
+
+// Published events starting in [from, to)
+export async function getEventsBetween(from: Date, to: Date): Promise<CommunityEvent[]> {
+  return withCache(`events:range:${from.toISOString()}:${to.toISOString()}`, 300, async () => {
+    const result = await db.query<DbEvent>(`
+      SELECT * FROM events
+      WHERE status = 'published' AND starts_at >= $1 AND starts_at < $2
+      ORDER BY starts_at ASC
+    `, [from, to]);
+
+    return result.rows.map(row => ({
+      ...row,
+      created_at: row.created_at?.toISOString(),
+      updated_at: row.updated_at?.toISOString(),
+      starts_at: row.starts_at.toISOString(),
+    }));
+  });
+}
+
+// ────────────────────────────────────────────────────
 // SETTINGS
 // ────────────────────────────────────────────────────
 
@@ -880,32 +968,8 @@ export async function getMarketplaceStats(): Promise<{ vendors: number; products
 // HELPERS
 // ────────────────────────────────────────────────────
 
-export function formatDate(dateString: string | null): string {
-  if (!dateString) return '';
+export { formatDate, getAssetUrl } from './format';
 
-  const date = new Date(dateString);
-  const months = [
-    'januar', 'februar', 'mart', 'april', 'maj', 'jun',
-    'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar'
-  ];
-
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-
-  return `${day}. ${month} ${year}.`;
-}
-
-export function getAssetUrl(url: string | null): string | null {
-  if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  const baseUrl = process.env.NEXT_PUBLIC_UPLOAD_URL || '/uploads';
-  return `${baseUrl}/${url}`;
-}
-
-// Category labels
 export const vendorCategoryLabels: Record<VendorCategory, string> = {
   farma: 'Farma',
   zanatstvo: 'Zanatstvo',
@@ -914,6 +978,11 @@ export const vendorCategoryLabels: Record<VendorCategory, string> = {
   turizam: 'Turizam',
   lepota: 'Lepota',
   edukacija: 'Edukacija',
+  zdravlje: 'Zdravlje',
+  ustanove: 'Ustanove',
+  majstori: 'Majstori',
+  auto: 'Auto',
+  ugostitelji: 'Ugostitelji',
   ostalo: 'Ostalo',
 };
 

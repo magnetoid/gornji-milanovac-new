@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { importantPhones, telHref } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'O Gradu',
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 const quickFacts = [
-  { label: 'Stanovništvo', value: '~31.000', icon: '👥' },
+  { label: 'Stanovništvo (2022)', value: '38.985', icon: '👥' },
   { label: 'Površina', value: '836 km²', icon: '📐' },
   { label: 'Nadmorska visina', value: '335 m', icon: '⛰️' },
   { label: 'Poštanski broj', value: '32300', icon: '📮' },
@@ -98,7 +99,7 @@ export default function OGraduPage() {
       </section>
 
       {/* Quick Facts Bar */}
-      <section className="bg-white border-b border-border">
+      <section className="bg-paper-card border-b border-border">
         <div className="container py-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
             {quickFacts.map((fact) => (
@@ -118,7 +119,7 @@ export default function OGraduPage() {
           {/* Main Column */}
           <div className="lg:col-span-2 space-y-12">
             {/* History Section */}
-            <section className="bg-white rounded-xl border border-border p-8 shadow-sm">
+            <section className="bg-paper-card rounded-xl border border-border p-8 shadow-sm">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-text mb-6 flex items-center gap-3">
                 <span className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-xl">📜</span>
                 Istorija
@@ -143,7 +144,7 @@ export default function OGraduPage() {
                 <span className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-xl">🕐</span>
                 Vremenska linija
               </h2>
-              <div className="bg-white rounded-xl border border-border p-6 shadow-sm">
+              <div className="bg-paper-card rounded-xl border border-border p-6 shadow-sm">
                 <div className="relative">
                   <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary/20" />
                   <div className="space-y-6">
@@ -173,7 +174,7 @@ export default function OGraduPage() {
                 {landmarks.map((landmark) => (
                   <div
                     key={landmark.title}
-                    className="bg-white rounded-xl border border-border p-6 hover:border-primary hover:shadow-lg transition-all group"
+                    className="bg-paper-card rounded-xl border border-border p-6 hover:border-primary hover:shadow-lg transition-all group"
                   >
                     <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{landmark.icon}</div>
                     <h3 className="text-lg font-bold text-text mb-2 group-hover:text-primary transition-colors">{landmark.title}</h3>
@@ -184,7 +185,7 @@ export default function OGraduPage() {
             </section>
 
             {/* Economy Section */}
-            <section className="bg-white rounded-xl border border-border p-8 shadow-sm">
+            <section className="bg-paper-card rounded-xl border border-border p-8 shadow-sm">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-text mb-6 flex items-center gap-3">
                 <span className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-xl">🏭</span>
                 Privreda
@@ -203,7 +204,7 @@ export default function OGraduPage() {
             </section>
 
             {/* Events Section */}
-            <section className="bg-white rounded-xl border border-border p-8 shadow-sm">
+            <section className="bg-paper-card rounded-xl border border-border p-8 shadow-sm">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-text mb-6 flex items-center gap-3">
                 <span className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-xl">🎭</span>
                 Manifestacije
@@ -287,15 +288,10 @@ export default function OGraduPage() {
             <div className="sidebar-widget" id="vazni-telefoni">
               <h3 className="sidebar-widget-title">Važni telefoni</h3>
               <ul className="space-y-3">
-                {[
-                  { name: 'Hitna pomoć', number: '194', color: 'red' },
-                  { name: 'Policija', number: '192', color: 'blue' },
-                  { name: 'Vatrogasci', number: '193', color: 'orange' },
-                  { name: 'Opština GM', number: '032/712-600', color: 'primary' },
-                ].map((phone) => (
+                {importantPhones.map((phone) => (
                   <li key={phone.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                     <span className="text-text-secondary text-sm">{phone.name}</span>
-                    <a href={`tel:${phone.number.replace(/[^0-9+]/g, '')}`} className="font-bold text-primary hover:text-primary-dark transition-colors">
+                    <a href={telHref(phone.number)} className="font-bold text-primary hover:text-primary-dark transition-colors">
                       {phone.number}
                     </a>
                   </li>

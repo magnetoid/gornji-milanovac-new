@@ -102,7 +102,7 @@ export default async function MarketplacePage() {
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/marketplace/registracija"
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-primary font-medium rounded-lg hover:bg-primary-50 transition-all shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-paper-card text-primary font-medium rounded-lg hover:bg-primary-50 transition-all shadow-lg hover:shadow-xl"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -124,7 +124,7 @@ export default async function MarketplacePage() {
       </section>
 
       {/* Stats Bar */}
-      <section className="bg-white border-b border-border">
+      <section className="bg-paper-card border-b border-border">
         <div className="container py-8">
           <div className="grid grid-cols-3 gap-6 md:gap-12">
             <div className="text-center">
@@ -156,7 +156,7 @@ export default async function MarketplacePage() {
               <Link
                 key={category.slug}
                 href={`/marketplace/${category.slug}`}
-                className="group p-6 bg-white border border-border rounded-xl hover:border-primary hover:shadow-lg transition-all text-center"
+                className="group p-6 bg-paper-card border border-border rounded-xl hover:border-primary hover:shadow-lg transition-all text-center"
               >
                 <span className="text-4xl mb-3 block group-hover:scale-110 transition-transform">{category.icon}</span>
                 <h3 className="font-semibold text-text group-hover:text-primary transition-colors">
@@ -173,7 +173,7 @@ export default async function MarketplacePage() {
 
       {/* Featured Vendors */}
       {featuredVendors.length > 0 && (
-        <section className="bg-white py-12 border-t border-border">
+        <section className="bg-paper-card py-12 border-t border-border">
           <div className="container">
             <div className="section-header">
               <h2 className="section-title">Istaknuti prodavci</h2>
@@ -219,7 +219,7 @@ export default async function MarketplacePage() {
 
       {/* Latest Services */}
       {latestServices.length > 0 && (
-        <section className="bg-white py-12 border-t border-border">
+        <section className="bg-paper-card py-12 border-t border-border">
           <div className="container">
             <div className="section-header">
               <h2 className="section-title">Usluge sa rezervacijom</h2>
@@ -252,7 +252,7 @@ export default async function MarketplacePage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/marketplace/registracija"
-              className="px-8 py-4 bg-white text-primary font-semibold rounded-lg hover:bg-primary-50 transition-all shadow-lg"
+              className="px-8 py-4 bg-paper-card text-primary font-semibold rounded-lg hover:bg-primary-50 transition-all shadow-lg"
             >
               Registruj svog prodavca
             </Link>

@@ -33,7 +33,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
   const categoryColorClass = service.category ? categoryColors[service.category] : categoryColors.ostalo;
 
   return (
-    <article className="group bg-white border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-md">
+    <article className="group bg-paper-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-md">
       <Link href={`/marketplace/usluga/${service.slug}`} className="block">
         <div className="relative h-44">
           {imageUrl ? (

@@ -200,6 +200,38 @@ CREATE TABLE bookings (
 );
 
 -- ────────────────────────────────────────────────────
+-- EVENTS (Zajednica - kalendar događaja)
+-- ────────────────────────────────────────────────────
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    status VARCHAR(20) DEFAULT 'published' NOT NULL, -- draft, published, cancelled
+    title VARCHAR(500) NOT NULL,
+    starts_at TIMESTAMPTZ NOT NULL,
+    category VARCHAR(50), -- kultura, grad, akcija, pijaca, sport, ostalo
+    location VARCHAR(255),
+    description TEXT,
+    url VARCHAR(500)
+);
+
+-- ────────────────────────────────────────────────────
+-- NEWS SOURCES (RSS agregator)
+-- ────────────────────────────────────────────────────
+CREATE TABLE news_sources (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    name VARCHAR(255) NOT NULL,              -- shown as the post's source_name
+    feed_url VARCHAR(1000) UNIQUE NOT NULL,
+    keywords VARCHAR(500),                   -- e.g. "gornj* milanov*"; empty = import everything
+    category_id UUID REFERENCES categories(id),
+    enabled BOOLEAN DEFAULT true NOT NULL,
+    last_fetched_at TIMESTAMPTZ,
+    last_imported INTEGER DEFAULT 0,
+    last_error TEXT
+);
+
+-- ────────────────────────────────────────────────────
 -- SETTINGS
 -- ────────────────────────────────────────────────────
 CREATE TABLE settings (
@@ -217,6 +249,7 @@ CREATE INDEX idx_posts_status ON posts(status);
 CREATE INDEX idx_posts_published_at ON posts(published_at DESC);
 CREATE INDEX idx_posts_category ON posts(category_id);
 CREATE INDEX idx_posts_slug ON posts(slug);
+CREATE INDEX idx_posts_source_url ON posts(source_url);
 CREATE INDEX idx_posts_search ON posts USING gin(to_tsvector('simple', title || ' ' || COALESCE(excerpt, '') || ' ' || COALESCE(content, '')));
 CREATE INDEX idx_listings_status ON listings(status);
 CREATE INDEX idx_listings_category ON listings(category_id);
@@ -226,14 +259,15 @@ CREATE INDEX idx_services_vendor ON services(vendor_id);
 CREATE INDEX idx_bookings_service ON bookings(service_id);
 CREATE INDEX idx_bookings_vendor ON bookings(vendor_id);
 CREATE INDEX idx_bookings_status ON bookings(status);
+CREATE INDEX idx_events_starts_at ON events(starts_at);
 
 -- ────────────────────────────────────────────────────
 -- SEED DATA
 -- ────────────────────────────────────────────────────
--- Default admin user (password: GmPortal2026!)
--- bcrypt hash of 'GmPortal2026!' with 10 rounds
+-- Default admin user. It cannot sign in until a password is set:
+--   docker compose exec -e ADMIN_PASSWORD='...' nextjs node scripts/set-admin-password.js admin@gornji-milanovac.com
 INSERT INTO users (email, password_hash, name, role) VALUES
-('admin@gornji-milanovac.com', '$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu9Hu', 'Admin', 'admin');
+('admin@gornji-milanovac.com', '!', 'Admin', 'admin');
 
 -- Default categories
 INSERT INTO categories (name, slug, color, icon) VALUES
@@ -269,7 +303,9 @@ INSERT INTO settings (key, value, type, label, group_name) VALUES
 ('contact_email', 'redakcija@gornji-milanovac.com', 'string', 'Email redakcije', 'contact'),
 ('contact_phone', '032/712-600', 'string', 'Telefon', 'contact'),
 ('google_analytics', '', 'string', 'GA ID', 'seo'),
-('marketplace_enabled', 'true', 'boolean', 'Marketplace aktivan', 'features');
+('marketplace_enabled', 'true', 'boolean', 'Marketplace aktivan', 'features'),
+('site_alert', '', 'string', 'Obaveštenje na naslovnoj (prazno = skriveno)', 'general'),
+('site_alert_link', '', 'string', 'Link obaveštenja', 'general');
 
 -- Sample vendors
 INSERT INTO vendors (status, name, slug, description, category, location, phone, email, working_hours, featured) VALUES

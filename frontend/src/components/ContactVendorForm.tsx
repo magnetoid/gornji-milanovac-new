@@ -93,7 +93,7 @@ ${formData.message}
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-white px-2 text-text-muted">ili pošaljite upit</span>
+              <span className="bg-paper-card px-2 text-text-muted">ili pošaljite upit</span>
             </div>
           </div>
 

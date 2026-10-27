@@ -165,7 +165,7 @@ export default async function ListingPage({ params }: PageProps) {
         </div>
 
         <aside className="space-y-6">
-          <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+          <div className="bg-paper-card rounded-lg shadow-md p-6 sticky top-24">
             <p className="text-3xl font-bold text-secondary mb-6">
               {formatPrice(listing.price)}
             </p>

@@ -6,6 +6,8 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   output: 'standalone',
+  // src/instrumentation.ts starts the RSS import schedule
+  experimental: { instrumentationHook: true },
   images: {
     remotePatterns: [
       {
@@ -24,9 +26,10 @@ const nextConfig = {
   },
   async rewrites() {
     return [
+      // Old WordPress image URLs; migrated files keep their year/month path under UPLOAD_DIR
       {
-        source: '/assets/:path*',
-        destination: `${process.env.NEXT_PUBLIC_DIRECTUS_URL || 'http://localhost:8055'}/assets/:path*`,
+        source: '/wp-content/uploads/:path*',
+        destination: '/uploads/:path*',
       },
     ];
   },

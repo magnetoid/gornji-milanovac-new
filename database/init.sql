@@ -246,10 +246,10 @@ CREATE INDEX idx_events_starts_at ON events(starts_at);
 -- ────────────────────────────────────────────────────
 -- SEED DATA
 -- ────────────────────────────────────────────────────
--- Default admin user (password: GmPortal2026!)
--- bcrypt hash of 'GmPortal2026!' with 10 rounds
+-- Default admin user. It cannot sign in until a password is set:
+--   docker compose exec -e ADMIN_PASSWORD='...' nextjs node scripts/set-admin-password.js admin@gornji-milanovac.com
 INSERT INTO users (email, password_hash, name, role) VALUES
-('admin@gornji-milanovac.com', '$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu9Hu', 'Admin', 'admin');
+('admin@gornji-milanovac.com', '!', 'Admin', 'admin');
 
 -- Default categories
 INSERT INTO categories (name, slug, color, icon) VALUES

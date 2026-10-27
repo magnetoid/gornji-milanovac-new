@@ -19,6 +19,7 @@ const navigation = [
     items: [
       { name: 'Dashboard', href: '/admin', icon: 'home' },
       { name: 'Vesti', href: '/admin/vesti', icon: 'newspaper' },
+      { name: 'Izvori vesti', href: '/admin/izvori', icon: 'newspaper' },
       { name: 'Stranice', href: '/admin/stranice', icon: 'file-text' },
       { name: 'Mediji', href: '/admin/mediji', icon: 'image' },
     ],

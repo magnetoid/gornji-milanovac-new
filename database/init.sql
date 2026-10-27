@@ -216,6 +216,22 @@ CREATE TABLE events (
 );
 
 -- ────────────────────────────────────────────────────
+-- NEWS SOURCES (RSS agregator)
+-- ────────────────────────────────────────────────────
+CREATE TABLE news_sources (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    name VARCHAR(255) NOT NULL,              -- shown as the post's source_name
+    feed_url VARCHAR(1000) UNIQUE NOT NULL,
+    keywords VARCHAR(500),                   -- e.g. "gornj* milanov*"; empty = import everything
+    category_id UUID REFERENCES categories(id),
+    enabled BOOLEAN DEFAULT true NOT NULL,
+    last_fetched_at TIMESTAMPTZ,
+    last_imported INTEGER DEFAULT 0,
+    last_error TEXT
+);
+
+-- ────────────────────────────────────────────────────
 -- SETTINGS
 -- ────────────────────────────────────────────────────
 CREATE TABLE settings (
@@ -233,6 +249,7 @@ CREATE INDEX idx_posts_status ON posts(status);
 CREATE INDEX idx_posts_published_at ON posts(published_at DESC);
 CREATE INDEX idx_posts_category ON posts(category_id);
 CREATE INDEX idx_posts_slug ON posts(slug);
+CREATE INDEX idx_posts_source_url ON posts(source_url);
 CREATE INDEX idx_posts_search ON posts USING gin(to_tsvector('simple', title || ' ' || COALESCE(excerpt, '') || ' ' || COALESCE(content, '')));
 CREATE INDEX idx_listings_status ON listings(status);
 CREATE INDEX idx_listings_category ON listings(category_id);

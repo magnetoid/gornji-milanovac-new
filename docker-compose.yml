@@ -44,6 +44,9 @@ services:
       NEXT_PUBLIC_UPLOAD_URL: ${NEXT_PUBLIC_SITE_URL:-https://new.gornji-milanovac.com}/uploads
       UPLOAD_DIR: /app/uploads
       RSS_IMPORT_INTERVAL_MINUTES: ${RSS_IMPORT_INTERVAL_MINUTES:-30}
+      # Creates the admin account / resets its password on start (min. 12 characters)
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@gornji-milanovac.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       - uploads:/app/uploads
     depends_on:

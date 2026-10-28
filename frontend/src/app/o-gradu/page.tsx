@@ -150,6 +150,26 @@ export default function OGraduPage() {
               </div>
             </Link>
 
+            <Link
+              href="/o-gradu/sela"
+              className="group block bg-paper-card rounded-xl border border-border p-8 shadow-sm hover:border-primary transition-colors"
+            >
+              <div className="flex items-baseline gap-6">
+                <span className="font-serif font-bold text-primary text-4xl md:text-5xl leading-none shrink-0">63</span>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-serif font-bold text-text group-hover:text-primary transition-colors">
+                    Sela opštine
+                  </h2>
+                  <p className="text-text-secondary mt-2">
+                    Koštunići, Rudnik, Savinac i Leušići: planine, banje i seoski turizam.
+                  </p>
+                  <span className="inline-block mt-4 text-primary font-medium group-hover:underline underline-offset-4">
+                    Upoznaj sela
+                  </span>
+                </div>
+              </div>
+            </Link>
+
             {/* Landmarks Section */}
             <section>
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-text mb-6 flex items-center gap-3">

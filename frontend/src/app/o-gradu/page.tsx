@@ -44,13 +44,14 @@ const landmarks = [
   },
 ];
 
+// Newest first
 const timeline = [
-  { year: '1815', event: 'Podizanje Drugog srpskog ustanka na Takovu' },
-  { year: '1853', event: 'Gornji Milanovac dobija status varošice' },
-  { year: '1880', event: 'Izgrađena Crkva Svetog Đorđa' },
-  { year: '1920', event: 'Početak industrijske ere' },
-  { year: '1965', event: 'Osnivanje metaloprerađivačke industrije' },
   { year: '2000', event: 'Modernizacija i razvoj turizma' },
+  { year: '1965', event: 'Osnivanje metaloprerađivačke industrije' },
+  { year: '1920', event: 'Početak industrijske ere' },
+  { year: '1880', event: 'Izgrađena Crkva Svetog Đorđa' },
+  { year: '1853', event: 'Gornji Milanovac dobija status varošice' },
+  { year: '1815', event: 'Podizanje Drugog srpskog ustanka na Takovu' },
 ];
 
 const events = [

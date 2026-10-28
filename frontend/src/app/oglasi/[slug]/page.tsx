@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getListingBySlug, getListings, getAssetUrl, ListingCategory } from '@/lib/api';
 import ListingCard from '@/components/ListingCard';
+import { sanitizeContent } from '@/lib/sanitize';
 
 export const revalidate = 60;
 
@@ -160,7 +161,7 @@ export default async function ListingPage({ params }: PageProps) {
 
           <div
             className="prose max-w-none mb-8"
-            dangerouslySetInnerHTML={{ __html: listing.description || '' }}
+            dangerouslySetInnerHTML={{ __html: sanitizeContent(listing.description) }}
           />
         </div>
 

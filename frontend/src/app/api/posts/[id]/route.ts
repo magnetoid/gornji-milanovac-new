@@ -89,6 +89,10 @@ export async function PUT(
       published_at,
     } = body;
 
+    if (status === 'scheduled' && !published_at) {
+      return NextResponse.json({ error: 'Scheduled posts need published_at' }, { status: 400 });
+    }
+
     const result = await db.query(`
       UPDATE posts SET
         title = $1,
@@ -120,7 +124,7 @@ export async function PUT(
       locale || 'sr',
       source_name || null,
       source_url || null,
-      published_at || null,
+      published_at || (status === 'published' ? new Date().toISOString() : null),
       id,
     ]);
 

@@ -104,6 +104,10 @@ export async function POST(request: NextRequest) {
       published_at,
     } = body;
 
+    if (status === 'scheduled' && !published_at) {
+      return NextResponse.json({ error: 'Scheduled posts need published_at' }, { status: 400 });
+    }
+
     const result = await db.query(`
       INSERT INTO posts (title, slug, content, excerpt, status, category_id, tags, featured_image, featured, locale, source_name, source_url, published_at, author_id)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)

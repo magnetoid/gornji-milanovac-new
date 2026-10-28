@@ -13,6 +13,7 @@ import {
 } from '@/lib/api';
 import ServiceCard from '@/components/ServiceCard';
 import BookingForm from '@/components/BookingForm';
+import { sanitizeContent } from '@/lib/sanitize';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -223,7 +224,7 @@ export default async function ServicePage({ params }: PageProps) {
               <h2 className="text-lg font-bold text-text mb-4">Opis usluge</h2>
               <div
                 className="prose prose-sm max-w-none text-text-muted"
-                dangerouslySetInnerHTML={{ __html: service.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeContent(service.description) }}
               />
             </div>
           )}

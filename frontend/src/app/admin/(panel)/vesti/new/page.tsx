@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import RichTextEditor from '@/components/admin/RichTextEditor';
+import ImageUploadButton from '@/components/admin/ImageUploadButton';
 
 interface Category {
   id: string;
@@ -28,6 +30,8 @@ export default function NewPostPage() {
     locale: 'sr',
     source_name: '',
     source_url: '',
+    // datetime-local value (browser time) for scheduled posts
+    published_at: '',
   });
 
   useEffect(() => {
@@ -61,12 +65,21 @@ export default function NewPostPage() {
     e.preventDefault();
     setLoading(true);
 
+    const scheduled = !publishNow && formData.status === 'scheduled';
+    if (scheduled && !formData.published_at) {
+      alert('Izaberite datum i vreme objave');
+      setLoading(false);
+      return;
+    }
+
     try {
       const payload = {
         ...formData,
         status: publishNow ? 'published' : formData.status,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        published_at: publishNow ? new Date().toISOString() : null,
+        published_at: publishNow
+          ? new Date().toISOString()
+          : scheduled ? new Date(formData.published_at).toISOString() : null,
       };
 
       const res = await fetch('/api/posts', {
@@ -148,16 +161,10 @@ export default function NewPostPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sadržaj
               </label>
-              <textarea
+              <RichTextEditor
                 value={formData.content}
-                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                rows={20}
-                placeholder="Unesite sadržaj vesti... (podržava Markdown formatiranje)"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm"
+                onChange={(content) => setFormData(prev => ({ ...prev, content }))}
               />
-              <p className="mt-2 text-xs text-gray-500">
-                Tip: Koristite Markdown za formatiranje (## za naslove, **bold**, *italic*, - za liste)
-              </p>
             </div>
           </div>
 
@@ -181,6 +188,23 @@ export default function NewPostPage() {
                   </select>
                 </div>
 
+                {formData.status === 'scheduled' && (
+                  <div>
+                    <label htmlFor="published_at" className="block text-sm font-medium text-gray-700 mb-1">
+                      Datum i vreme objave
+                    </label>
+                    <input
+                      id="published_at"
+                      type="datetime-local"
+                      value={formData.published_at}
+                      onChange={(e) => setFormData(prev => ({ ...prev, published_at: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      required
+                    />
+                    <p className="mt-1 text-xs text-gray-500">Vest se objavljuje sama u izabrano vreme.</p>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -200,7 +224,7 @@ export default function NewPostPage() {
                     disabled={loading}
                     className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                   >
-                    Sačuvaj nacrt
+                    {formData.status === 'scheduled' ? 'Zakaži' : 'Sačuvaj nacrt'}
                   </button>
                   <button
                     type="button"
@@ -252,6 +276,9 @@ export default function NewPostPage() {
                 placeholder="URL slike"
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
+              <div className="mt-3">
+                <ImageUploadButton onUploaded={(url) => setFormData(prev => ({ ...prev, featured_image: url }))} />
+              </div>
               {formData.featured_image && (
                 <div className="mt-4">
                   <img

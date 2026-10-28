@@ -1,6 +1,6 @@
 import { runMigrations } from './migrate';
 import { ensureAdminFromEnv } from './bootstrap-admin';
-import { startRssSchedule } from './rss-schedule';
+import { startJobScheduler } from './jobs';
 
 // Runs once per server start, before requests are served
 export async function onServerStart() {
@@ -20,5 +20,5 @@ export async function onServerStart() {
     console.error('Admin account setup failed:', error);
   }
 
-  startRssSchedule();
+  startJobScheduler();
 }

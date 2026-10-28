@@ -23,10 +23,15 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# pg_dump for the daily backup job (same major version as the postgres service)
+RUN apk add --no-cache postgresql16-client
+
 COPY --from=builder /app/public ./public
 
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
+# Volumes mounted here start with this ownership, so the app can write uploads and backups
+RUN mkdir -p uploads backups && chown nextjs:nodejs uploads backups
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static

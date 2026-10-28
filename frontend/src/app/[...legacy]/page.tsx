@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { getCategoryBySlug, getPageBySlug, getPostBySlug, Page } from '@/lib/api';
+import { sanitizeContent } from '@/lib/sanitize';
 
 // Catches every path no other route handles: old WordPress URLs and CMS pages.
 //   /<post-slug>/, /2024/03/<post-slug>/      -> 301 to /vesti/<post-slug>
@@ -68,7 +69,7 @@ export default async function LegacyPage({ params }: PageProps) {
       <h1 className="font-serif text-[36px] sm:text-[48px] font-medium tracking-[-0.02em] leading-[1.1] pb-6 mb-8 border-b border-border">
         {page.title}
       </h1>
-      <div className="prose max-w-[70ch]" dangerouslySetInnerHTML={{ __html: page.content || '' }} />
+      <div className="prose max-w-[70ch]" dangerouslySetInnerHTML={{ __html: sanitizeContent(page.content) }} />
     </div>
   );
 }

@@ -44,16 +44,6 @@ const landmarks = [
   },
 ];
 
-// Newest first
-const timeline = [
-  { year: '2000', event: 'Modernizacija i razvoj turizma' },
-  { year: '1965', event: 'Osnivanje metaloprerađivačke industrije' },
-  { year: '1920', event: 'Početak industrijske ere' },
-  { year: '1880', event: 'Izgrađena Crkva Svetog Đorđa' },
-  { year: '1853', event: 'Gornji Milanovac dobija status varošice' },
-  { year: '1815', event: 'Podizanje Drugog srpskog ustanka na Takovu' },
-];
-
 const events = [
   {
     title: 'Takovsko proleće',
@@ -139,31 +129,26 @@ export default function OGraduPage() {
               </div>
             </section>
 
-            {/* Timeline */}
-            <section>
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-text mb-6 flex items-center gap-3">
-                <span className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-xl">🕐</span>
-                Vremenska linija
-              </h2>
-              <div className="bg-paper-card rounded-xl border border-border p-6 shadow-sm">
-                <div className="relative">
-                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary/20" />
-                  <div className="space-y-6">
-                    {timeline.map((item, index) => (
-                      <div key={index} className="flex gap-6 relative">
-                        <div className="w-8 h-8 rounded-full bg-primary text-white font-bold text-xs flex items-center justify-center relative z-10">
-                          {item.year.slice(-2)}
-                        </div>
-                        <div className="flex-1 pb-6">
-                          <span className="text-sm font-bold text-primary">{item.year}</span>
-                          <p className="text-text-secondary mt-1">{item.event}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+            {/* Timeline lives on its own page */}
+            <Link
+              href="/o-gradu/vremenska-linija"
+              className="group block bg-paper-card rounded-xl border border-border p-8 shadow-sm hover:border-primary transition-colors"
+            >
+              <div className="flex items-baseline gap-6">
+                <span className="font-serif font-bold text-primary text-4xl md:text-5xl leading-none shrink-0">1815</span>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-serif font-bold text-text group-hover:text-primary transition-colors">
+                    Vremenska linija
+                  </h2>
+                  <p className="text-text-secondary mt-2">
+                    Prelomne godine Gornjeg Milanovca, od Takovskog ustanka do danas.
+                  </p>
+                  <span className="inline-block mt-4 text-primary font-medium group-hover:underline underline-offset-4">
+                    Pogledaj vremensku liniju
+                  </span>
                 </div>
               </div>
-            </section>
+            </Link>
 
             {/* Landmarks Section */}
             <section>

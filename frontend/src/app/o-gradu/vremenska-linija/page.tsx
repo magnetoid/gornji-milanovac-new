@@ -21,8 +21,34 @@ interface Era {
   entries: Entry[];
 }
 
-// Newest first. Sources: sr.wikipedia.org and en.wikipedia.org, "Gornji Milanovac"
+// Newest first. Sources: sr.wikipedia.org and en.wikipedia.org, "Gornji Milanovac";
+// the 2016 motorway section from en.wikipedia.org, "A2 motorway (Serbia)"
 const eras: Era[] = [
+  {
+    name: 'Novije doba',
+    entries: [
+      {
+        year: 2024,
+        title: 'Zatvoreni bazen',
+        text: 'Gradski bazeni dobili su novi zatvoreni bazen.',
+      },
+      {
+        year: 2023,
+        title: 'Kulturni centar „Mija Aleksić”',
+        text: 'Kulturni centar nosi ime glumca Mije Aleksića.',
+      },
+      {
+        year: 2016,
+        title: 'Autoput i novi Dom kulture',
+        text: 'U novembru je otvorena deonica autoputa Miloš Veliki od Ljiga do Preljine, koja prolazi pored grada. Iste godine otvoren je novi Dom kulture.',
+      },
+      {
+        year: 1999,
+        title: 'NATO bombardovanje',
+        text: 'Grad je bombardovan jednom i oštećen je samo televizijski repetitor.',
+      },
+    ],
+  },
   {
     name: 'Grad posle rata',
     entries: [
@@ -35,6 +61,11 @@ const eras: Era[] = [
         year: 1965,
         title: 'Opština dobija današnje granice',
         text: 'Opštine Pranjani i Rudnik pripojene su opštini Gornji Milanovac.',
+      },
+      {
+        year: 1961,
+        title: 'FK Metalac i Tehnička škola',
+        text: 'Osnovani su fudbalski klub Metalac i Tehnička škola „Jovan Žujović”.',
       },
       {
         year: 1959,
@@ -64,8 +95,18 @@ const eras: Era[] = [
     ],
   },
   {
-    name: 'Pruga, struja i Prvi svetski rat',
+    name: 'Pruga, rat i fabrike',
     entries: [
+      {
+        year: 1937,
+        title: 'Fabrika Šumadija',
+        text: 'Otvorena je druga fabrika bombona u gradu.',
+      },
+      {
+        year: 1933,
+        title: 'Prva mešovita osnovna škola',
+        text: 'Otvorio ju je kralj Aleksandar I.',
+      },
       {
         year: 1922,
         title: 'Fabrika Rudnik i ponovo pruga',
@@ -124,7 +165,12 @@ const eras: Era[] = [
       {
         year: 1853,
         title: 'Osnovana Despotovica',
-        text: 'Ukazom kneza Aleksandra Karađorđevića od 19. januara počinje gradnja varoši na Divljem polju, nazvane po reci Despotovici. Prema planu inženjera Kamnika, prvi grad u Srbiji koji je imao plan pre gradnje.',
+        text: 'Ukazom kneza Aleksandra Karađorđevića od 19. januara počinje gradnja varoši na Divljem polju, nazvane po reci Despotovici.',
+      },
+      {
+        year: 1852,
+        title: 'Varoš dobija plan',
+        text: 'Komisija iz Beograda stigla je 22. aprila na Divlje polje. Prema planu inženjera Kamnika, ovo je prvi grad u Srbiji koji je imao plan pre gradnje.',
       },
       {
         year: 1815,
@@ -225,7 +271,7 @@ export default function VremenskaLinijaPage() {
 
         <div className="mt-16 pt-8 border-t border-border text-sm text-text-muted space-y-4">
           <p>
-            Izvor: članak „Gornji Milanovac” na Vikipediji. Ako znate datum koji nedostaje ili treba ispraviti,{' '}
+            Izvor: članci o Gornjem Milanovcu i autoputu Miloš Veliki na Vikipediji. Ako znate datum koji nedostaje ili treba ispraviti,{' '}
             <Link href="/kontakt" className="text-primary hover:underline underline-offset-4">
               pišite redakciji
             </Link>

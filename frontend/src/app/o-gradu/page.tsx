@@ -118,8 +118,8 @@ export default function OGraduPage() {
               <div className="prose max-w-none">
                 <p className="text-text-secondary leading-relaxed">
                   Gornji Milanovac je grad u centralnoj Srbiji, smešten u Takovskom kraju, u srcu Šumadije.
-                  Grad je dobio ime po knezu Milošu Obrenoviću, vođi Drugog srpskog ustanka koji je podignut
-                  upravo na ovom području, na Takovu, 1815. godine.
+                  Osnovan je 1853. kao Despotovica, a 1859. dobio je ime po Milanu Obrenoviću, bratu kneza
+                  Miloša. Na obližnjem Takovu knez Miloš je 1815. godine podigao Drugi srpski ustanak.
                 </p>
                 <p className="text-text-secondary leading-relaxed">
                   Takovski ustanak predstavlja ključni trenutak u srpskoj istoriji, kada je knez Miloš

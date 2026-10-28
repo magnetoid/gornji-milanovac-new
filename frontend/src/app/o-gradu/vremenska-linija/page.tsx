@@ -10,15 +10,132 @@ export const metadata: Metadata = {
   },
 };
 
-// Newest first
-const timeline = [
-  { year: 2000, event: 'Modernizacija i razvoj turizma' },
-  { year: 1965, event: 'Osnivanje metaloprerađivačke industrije' },
-  { year: 1920, event: 'Početak industrijske ere' },
-  { year: 1880, event: 'Izgrađena Crkva Svetog Đorđa' },
-  { year: 1853, event: 'Gornji Milanovac dobija status varošice' },
-  { year: 1815, event: 'Podizanje Drugog srpskog ustanka na Takovu' },
+interface Entry {
+  year: number;
+  title: string;
+  text: string;
+}
+
+interface Era {
+  name: string;
+  entries: Entry[];
+}
+
+// Newest first. Sources: sr.wikipedia.org and en.wikipedia.org, "Gornji Milanovac"
+const eras: Era[] = [
+  {
+    name: 'Grad posle rata',
+    entries: [
+      {
+        year: 1989,
+        title: 'Prvi Bijenale umetnosti minijature',
+        text: 'Pokrenuta je međunarodna izložba minijature koja se od tada održava svake druge godine.',
+      },
+      {
+        year: 1965,
+        title: 'Opština dobija današnje granice',
+        text: 'Opštine Pranjani i Rudnik pripojene su opštini Gornji Milanovac.',
+      },
+      {
+        year: 1959,
+        title: 'Osnovan Metalac',
+        text: 'Iste godine osnovan je i Graditelj. Metalac je postao najpoznatija firma grada.',
+      },
+      {
+        year: 1947,
+        title: 'Osnovan Takovo',
+        text: 'Poljoprivredno-industrijski kombinat Takovo, kasnije deo Swisslion grupe.',
+      },
+    ],
+  },
+  {
+    name: 'Drugi svetski rat',
+    entries: [
+      {
+        year: 1944,
+        title: 'Oslobođenje',
+        text: 'Grad je oslobođen 17. septembra, posle borbe koja je trajala dvanaest sati.',
+      },
+      {
+        year: 1941,
+        title: 'Grad spaljen',
+        text: 'Nemačke snage su 15. oktobra spalile oko 90% kuća. Od 40 uzetih talaca, 32 su streljana u Kragujevcu.',
+      },
+    ],
+  },
+  {
+    name: 'Pruga, struja i Prvi svetski rat',
+    entries: [
+      {
+        year: 1922,
+        title: 'Fabrika Rudnik i ponovo pruga',
+        text: 'Otvorena je fabrika bombona i čokolade Rudnik, a uskotračna pruga ponovo je proradila.',
+      },
+      {
+        year: 1921,
+        title: 'Električno osvetljenje',
+        text: 'Grad dobija struju i javnu rasvetu. Dve godine kasnije proradila je termoelektrana na ugalj.',
+      },
+      {
+        year: 1914,
+        title: 'Štab Prve armije',
+        text: 'U Kolubarskoj bitki u gradu je bio štab vojvode Živojina Mišića. Plan bitke rađen je u zgradi okružnog načelstva.',
+      },
+      {
+        year: 1912,
+        title: 'Počinje gradnja pruge',
+        text: 'Uskotračna pruga Čačak – Gornji Milanovac – Lajkovac. Ukinuta je 1969.',
+      },
+    ],
+  },
+  {
+    name: 'Varoš raste',
+    entries: [
+      {
+        year: 1892,
+        title: 'Okružna bolnica',
+        text: 'Dve godine ranije otvorena je i prva štamparija.',
+      },
+      {
+        year: 1879,
+        title: 'Otvorena gimnazija',
+        text: 'Današnja gimnazija „Takovski ustanak”.',
+      },
+      {
+        year: 1862,
+        title: 'Završena crkva Svete Trojice',
+        text: 'Gradila se uporedo sa varošicom. Varoš je tada imala 775 stanovnika.',
+      },
+    ],
+  },
+  {
+    name: 'Postanak grada',
+    entries: [
+      {
+        year: 1859,
+        title: 'Ime Gornji Milanovac',
+        text: 'Ukazom od 3. aprila Despotovica je preimenovana po Milanu Obrenoviću, bratu kneza Miloša.',
+      },
+      {
+        year: 1857,
+        title: 'Prva škola i čitalište',
+        text: 'Osnovna škola prelazi iz Brusnice, a osniva se i Čitalište varoši Despotovica, preteča današnje biblioteke.',
+      },
+      {
+        year: 1853,
+        title: 'Osnovana Despotovica',
+        text: 'Ukazom kneza Aleksandra Karađorđevića od 19. januara počinje gradnja varoši na Divljem polju, nazvane po reci Despotovici. Prema planu inženjera Kamnika, prvi grad u Srbiji koji je imao plan pre gradnje.',
+      },
+      {
+        year: 1815,
+        title: 'Drugi srpski ustanak',
+        text: 'Na Cveti, 23. aprila, na Takovu je Miloš Obrenović izabran za vođu ustanka.',
+      },
+    ],
+  },
 ];
+
+const entries = eras.flatMap((era) => era.entries.map((entry, i) => ({ ...entry, era: i === 0 ? era.name : null })));
 
 // The space between two entries grows with the years between them
 const PX_PER_YEAR = 3;
@@ -26,14 +143,12 @@ const PX_PER_YEAR = 3;
 function yearsLabel(years: number): string {
   const lastTwo = years % 100;
   const last = years % 10;
-  if (last === 1 && lastTwo !== 11) return `${years} godina ranije`;
   if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${years} godine ranije`;
   return `${years} godina ranije`;
 }
 
 export default function VremenskaLinijaPage() {
-  const oldest = timeline[timeline.length - 1].year;
-  const newest = timeline[0].year;
+  const oldest = entries[entries.length - 1].year;
 
   return (
     <div className="bg-paper min-h-screen">
@@ -51,35 +166,48 @@ export default function VremenskaLinijaPage() {
             Vremenska linija
           </h1>
           <p className="text-lg md:text-xl text-text-secondary leading-relaxed max-w-xl">
-            {newest - oldest} godina Gornjeg Milanovca u šest prelomnih trenutaka, od najnovijeg do Takovskog ustanka.
+            Kako je Despotovica postala Gornji Milanovac i šta ga je oblikovalo, od Takovskog ustanka {oldest}. godine.
+            Najnovije je na vrhu.
           </p>
         </header>
 
-        <ol className="relative">
-          {timeline.map((item, index) => {
-            const next = timeline[index + 1];
+        <h2 className="pl-10 md:pl-14 font-serif text-2xl md:text-3xl text-text-muted mb-10">{entries[0].era}</h2>
+        <ol>
+          {entries.map((item, index) => {
+            const next = entries[index + 1];
             const gap = next ? item.year - next.year : 0;
             return (
               <li key={item.year} className="relative pl-10 md:pl-14">
-                {/* Rail: runs down to the next entry */}
-                {next && (
-                  <span className="absolute left-[7px] md:left-[11px] top-9 md:top-12 bottom-0 w-0.5 bg-primary-200" aria-hidden="true" />
+                {item.era && index > 0 && (
+                  <h2 className="font-serif text-2xl md:text-3xl text-text-muted pt-4 mb-10">{item.era}</h2>
                 )}
+                {/* Rail: one continuous line from the first dot to the last */}
                 <span
-                  className={`absolute left-0 md:left-1 top-5 md:top-8 w-4 h-4 rounded-full border-[3px] ${
-                    next ? 'border-primary bg-paper' : 'border-accent bg-accent'
+                  className={`absolute left-[7px] md:left-[11px] w-0.5 bg-primary-200 ${index ? 'top-0' : 'top-9 md:top-12'} ${
+                    next ? 'bottom-0' : 'h-5 md:h-8'
                   }`}
                   aria-hidden="true"
                 />
+                <div className="relative">
+                  <span
+                    className={`absolute -left-10 md:-left-[52px] top-5 md:top-8 w-4 h-4 rounded-full border-[3px] ${
+                      next ? 'border-primary bg-paper' : 'border-accent bg-accent'
+                    }`}
+                    aria-hidden="true"
+                  />
 
-                <div className="md:flex md:items-baseline md:gap-10">
-                  <time
-                    dateTime={String(item.year)}
-                    className="block font-serif font-bold text-primary text-6xl md:text-8xl leading-none tracking-tight md:w-64 md:shrink-0"
-                  >
-                    {item.year}
-                  </time>
-                  <p className="mt-3 md:mt-0 text-xl md:text-2xl font-serif text-ink leading-snug">{item.event}</p>
+                  <div className="md:flex md:items-baseline md:gap-10">
+                    <time
+                      dateTime={String(item.year)}
+                      className="block font-serif font-bold text-primary text-6xl md:text-8xl leading-none tracking-tight md:w-64 md:shrink-0"
+                    >
+                      {item.year}
+                    </time>
+                    <div className="mt-3 md:mt-0">
+                      <h3 className="text-xl md:text-2xl font-serif text-ink leading-snug">{item.title}</h3>
+                      <p className="mt-2 text-text-secondary leading-relaxed max-w-prose">{item.text}</p>
+                    </div>
+                  </div>
                 </div>
 
                 {next && (
@@ -95,8 +223,15 @@ export default function VremenskaLinijaPage() {
           })}
         </ol>
 
-        <div className="mt-16 pt-8 border-t border-border">
-          <Link href="/o-gradu" className="text-primary font-medium hover:underline underline-offset-4">
+        <div className="mt-16 pt-8 border-t border-border text-sm text-text-muted space-y-4">
+          <p>
+            Izvor: članak „Gornji Milanovac” na Vikipediji. Ako znate datum koji nedostaje ili treba ispraviti,{' '}
+            <Link href="/kontakt" className="text-primary hover:underline underline-offset-4">
+              pišite redakciji
+            </Link>
+            .
+          </p>
+          <Link href="/o-gradu" className="inline-block text-base text-primary font-medium hover:underline underline-offset-4">
             Nazad na stranu O gradu
           </Link>
         </div>
